@@ -1,17 +1,18 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-  val kotlinVersion by extra("1.4.0-rc")
   repositories {
     google()
     jcenter()
+    mavenCentral()
     maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
     gradlePluginPortal()
   }
   dependencies {
-    classpath("com.android.tools.build:gradle:4.0.1")
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    classpath("com.diffplug.spotless:spotless-plugin-gradle:5.3.0")
+    classpath("com.android.tools.build:gradle:7.0.0-alpha08")
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.30")
+    classpath("com.diffplug.spotless:spotless-plugin-gradle:5.8.2")
+    classpath("com.google.dagger:hilt-android-gradle-plugin:${deps.daggerHilt.version}")
   }
 }
 

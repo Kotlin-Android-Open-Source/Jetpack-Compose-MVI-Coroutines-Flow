@@ -1,6 +1,8 @@
 plugins {
   androidLib
   kotlinAndroid
+  kotlinKapt
+  daggerHiltAndroid
 }
 
 android {
@@ -44,5 +46,6 @@ dependencies {
   implementation(deps.squareup.converterMoshi)
   implementation(deps.squareup.loggingInterceptor)
 
-  implementation(deps.koin.core)
+  implementation(deps.daggerHilt.android)
+  kapt(deps.daggerHilt.compiler)
 }

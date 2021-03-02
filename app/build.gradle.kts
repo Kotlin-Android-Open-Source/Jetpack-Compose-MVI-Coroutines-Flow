@@ -1,6 +1,8 @@
 plugins {
   androidApplication
   kotlinAndroid
+  kotlinKapt
+  daggerHiltAndroid
 }
 
 android {
@@ -53,7 +55,9 @@ dependencies {
   implementation(featureAdd)
 
   implementation(deps.jetbrains.coroutinesAndroid)
-  implementation(deps.koin.android)
+
+  implementation(deps.daggerHilt.android)
+  kapt(deps.daggerHilt.compiler)
 
   testImplementation(deps.test.junit)
   androidTestImplementation(deps.test.androidxJunit)

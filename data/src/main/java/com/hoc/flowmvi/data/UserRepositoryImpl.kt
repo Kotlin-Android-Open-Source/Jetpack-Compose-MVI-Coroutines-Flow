@@ -1,14 +1,17 @@
 package com.hoc.flowmvi.data
 
 import android.util.Log
-import com.hoc.flowmvi.core.Mapper
 import com.hoc.flowmvi.core.dispatchers.CoroutineDispatchers
 import com.hoc.flowmvi.core.retrySuspend
+import com.hoc.flowmvi.data.mapper.UserDomainToUserBodyMapper
+import com.hoc.flowmvi.data.mapper.UserDomainToUserResponseMapper
+import com.hoc.flowmvi.data.mapper.UserResponseToUserDomainMapper
 import com.hoc.flowmvi.data.remote.UserApiService
-import com.hoc.flowmvi.data.remote.UserBody
-import com.hoc.flowmvi.data.remote.UserResponse
 import com.hoc.flowmvi.domain.entity.User
 import com.hoc.flowmvi.domain.repository.UserRepository
+import javax.inject.Inject
+import kotlin.time.ExperimentalTime
+import kotlin.time.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
@@ -19,17 +22,15 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.withContext
-import kotlin.time.ExperimentalTime
-import kotlin.time.milliseconds
 
 @ExperimentalTime
 @ExperimentalCoroutinesApi
-internal class UserRepositoryImpl constructor(
+internal class UserRepositoryImpl @Inject constructor(
   private val userApiService: UserApiService,
   private val dispatchers: CoroutineDispatchers,
-  private val responseToDomain: Mapper<UserResponse, User>,
-  private val domainToResponse: Mapper<User, UserResponse>,
-  private val domainToBody: Mapper<User, UserBody>
+  private val responseToDomain: UserResponseToUserDomainMapper,
+  private val domainToResponse: UserDomainToUserResponseMapper,
+  private val domainToBody: UserDomainToUserBodyMapper
 ) : UserRepository {
 
   private sealed class Change {

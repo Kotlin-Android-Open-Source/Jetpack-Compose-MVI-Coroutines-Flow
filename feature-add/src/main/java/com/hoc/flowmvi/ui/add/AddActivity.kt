@@ -17,6 +17,7 @@ import com.hoc.flowmvi.core.navigator.IntentProviders
 import com.hoc.flowmvi.core.textChanges
 import com.hoc.flowmvi.core.toast
 import com.hoc.flowmvi.ui.add.databinding.ActivityAddBinding
+import kotlin.LazyThreadSafetyMode.NONE
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -24,14 +25,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.androidx.viewmodel.scope.emptyState
-import kotlin.LazyThreadSafetyMode.NONE
 
 @FlowPreview
 @ExperimentalCoroutinesApi
 class AddActivity : AppCompatActivity() {
-  private val addVM by viewModel<AddVM>(state = emptyState())
+//  private val addVM by viewModel<AddVM>(state = emptyState())
   private val addBinding by lazy(NONE) { ActivityAddBinding.inflate(layoutInflater) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +38,7 @@ class AddActivity : AppCompatActivity() {
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
     setupViews()
-    bindVM(addVM)
+//    bindVM(addVM)
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -124,13 +122,13 @@ class AddActivity : AppCompatActivity() {
   }
 
   private fun setupViews() {
-    val state = addVM.viewState.value
-
-    addBinding.run {
-      emailEditText.editText!!.setText(state.email)
-      firstNameEditText.editText!!.setText(state.firstName)
-      lastNameEditText.editText!!.setText(state.lastName)
-    }
+//    val state = addVM.viewState.value
+//
+//    addBinding.run {
+//      emailEditText.editText!!.setText(state.email)
+//      firstNameEditText.editText!!.setText(state.firstName)
+//      lastNameEditText.editText!!.setText(state.lastName)
+//    }
   }
 
   private fun intents(): Flow<ViewIntent> = addBinding.run {

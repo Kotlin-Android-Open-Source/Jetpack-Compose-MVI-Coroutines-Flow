@@ -6,7 +6,7 @@ import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
 
 const val ktlintVersion = "0.38.1"
-const val kotlinVersion = "1.4.10"
+const val kotlinVersion = "1.4.30"
 
 object appConfig {
   const val applicationId = "com.hoc.flowmvi"
@@ -21,6 +21,10 @@ object appConfig {
 }
 
 object deps {
+  object kotlin {
+    const val reflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+  }
+
   object androidx {
     const val appCompat = "androidx.appcompat:appcompat:1.3.0-alpha02"
     const val coreKtx = "androidx.core:core-ktx:1.5.0-alpha02"
@@ -28,6 +32,19 @@ object deps {
     const val recyclerView = "androidx.recyclerview:recyclerview:1.2.0-alpha05"
     const val swipeRefreshLayout = "androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01"
     const val material = "com.google.android.material:material:1.3.0-alpha02"
+    const val activityCompose = "androidx.activity:activity-compose:1.3.0-alpha03"
+  }
+
+  object compose {
+    const val version = "1.0.0-beta01"
+
+    const val layout = "androidx.compose.foundation:foundation-layout:$version"
+    const val foundation = "androidx.compose.foundation:foundation:$version"
+    const val ui = "androidx.compose.ui:ui:$version"
+    const val material = "androidx.compose.material:material:$version"
+    const val materialIconsExtended = "androidx.compose.material:material-icons-extended:$version"
+    const val runtime = "androidx.compose.runtime:runtime:$version"
+    const val tooling = "androidx.compose.ui:ui-tooling:$version"
   }
 
   object lifecycle {
@@ -36,6 +53,7 @@ object deps {
     const val viewModelKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:$version" // viewModelScope
     const val runtimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$version" // lifecycleScope
     const val commonJava8 = "androidx.lifecycle:lifecycle-common-java8:$version"
+    const val viewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha02"
   }
 
   object squareup {
@@ -52,12 +70,11 @@ object deps {
     const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
   }
 
-  object koin {
-    private const val version = "2.2.2"
-
-    const val androidXViewModel = "org.koin:koin-androidx-viewmodel:$version"
-    const val core = "org.koin:koin-core:$version"
-    const val android = "org.koin:koin-android:$version"
+  object daggerHilt {
+    const val version = "2.33-beta"
+    const val android = "com.google.dagger:hilt-android:$version"
+    const val core = "com.google.dagger:hilt-core:$version"
+    const val compiler = "com.google.dagger:hilt-compiler:$version"
   }
 
   const val coil = "io.coil-kt:coil:1.0.0"
@@ -76,9 +93,27 @@ inline val PDsS.androidApplication: PDS get() = id("com.android.application")
 inline val PDsS.androidLib: PDS get() = id("com.android.library")
 inline val PDsS.kotlinAndroid: PDS get() = id("kotlin-android")
 inline val PDsS.kotlin: PDS get() = id("kotlin")
+inline val PDsS.kotlinKapt: PDS get() = id("kotlin-kapt")
+inline val PDsS.daggerHiltAndroid: PDS get() = id("dagger.hilt.android.plugin")
 
 inline val DependencyHandler.domain get() = project(":domain")
 inline val DependencyHandler.core get() = project(":core")
+inline val DependencyHandler.uiTheme get() = project(":ui-theme")
 inline val DependencyHandler.data get() = project(":data")
 inline val DependencyHandler.featureMain get() = project(":feature-main")
 inline val DependencyHandler.featureAdd get() = project(":feature-add")
+
+fun DependencyHandler.implementationCompose() {
+  arrayOf(
+    deps.androidx.activityCompose,
+    deps.compose.layout,
+    deps.compose.foundation,
+    deps.compose.ui,
+    deps.compose.material,
+    deps.compose.materialIconsExtended,
+    deps.compose.runtime
+  ).forEach { add("implementation", it) }
+
+  add("debugImplementation", deps.compose.tooling)
+  add("debugImplementation", deps.kotlin.reflect)
+}

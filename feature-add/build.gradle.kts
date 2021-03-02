@@ -1,6 +1,8 @@
 plugins {
   androidLib
   kotlinAndroid
+  kotlinKapt
+  daggerHiltAndroid
 }
 
 android {
@@ -49,5 +51,7 @@ dependencies {
   implementation(deps.androidx.material)
 
   implementation(deps.jetbrains.coroutinesCore)
-  implementation(deps.koin.androidXViewModel)
+
+  implementation(deps.daggerHilt.android)
+  kapt(deps.daggerHilt.compiler)
 }

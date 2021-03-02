@@ -4,5 +4,5 @@ plugins {
 
 dependencies {
   implementation(deps.jetbrains.coroutinesCore)
-  implementation(deps.koin.core)
+  implementation(deps.daggerHilt.core)
 }

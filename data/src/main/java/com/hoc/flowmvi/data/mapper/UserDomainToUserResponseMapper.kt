@@ -3,8 +3,9 @@ package com.hoc.flowmvi.data.mapper
 import com.hoc.flowmvi.core.Mapper
 import com.hoc.flowmvi.data.remote.UserResponse
 import com.hoc.flowmvi.domain.entity.User
+import javax.inject.Inject
 
-internal class UserDomainToUserResponseMapper : Mapper<User, UserResponse> {
+internal class UserDomainToUserResponseMapper @Inject constructor() : Mapper<User, UserResponse> {
   override fun invoke(domain: User): UserResponse {
     return UserResponse(
       id = domain.id,
