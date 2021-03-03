@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
@@ -26,6 +27,7 @@ private annotation class BaseUrl
 @Module
 @InstallIn(SingletonComponent::class)
 internal abstract class DataModule {
+  @ExperimentalCoroutinesApi
   @ExperimentalTime
   @Binds
   @Singleton

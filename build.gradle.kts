@@ -10,7 +10,7 @@ buildscript {
   }
   dependencies {
     classpath("com.android.tools.build:gradle:7.0.0-alpha08")
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.30")
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     classpath("com.diffplug.spotless:spotless-plugin-gradle:5.8.2")
     classpath("com.google.dagger:hilt-android-gradle-plugin:${deps.daggerHilt.version}")
   }
@@ -64,9 +64,15 @@ subprojects {
 allprojects {
   tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-      jvmTarget = JavaVersion.VERSION_1_8.toString()
-      sourceCompatibility = JavaVersion.VERSION_1_8.toString()
-      targetCompatibility = JavaVersion.VERSION_1_8.toString()
+      jvmTarget = JavaVersion.VERSION_11.toString()
+      sourceCompatibility = JavaVersion.VERSION_11.toString()
+      targetCompatibility = JavaVersion.VERSION_11.toString()
+
+      useIR = true
+      // Opt-in to experimental compose APIs
+      freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
+      // Enable experimental coroutines APIs, including collectAsState()
+      freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
     }
   }
 

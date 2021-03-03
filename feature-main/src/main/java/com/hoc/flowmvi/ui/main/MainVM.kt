@@ -7,6 +7,8 @@ import com.hoc.flowmvi.core.flatMapFirst
 import com.hoc.flowmvi.domain.usecase.GetUsersUseCase
 import com.hoc.flowmvi.domain.usecase.RefreshGetUsersUseCase
 import com.hoc.flowmvi.domain.usecase.RemoveUserUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
@@ -35,7 +37,8 @@ import kotlinx.coroutines.flow.take
 @Suppress("USELESS_CAST")
 @FlowPreview
 @ExperimentalCoroutinesApi
-internal class MainVM(
+@HiltViewModel
+internal class MainVM @Inject constructor(
   private val getUsersUseCase: GetUsersUseCase,
   private val refreshGetUsers: RefreshGetUsersUseCase,
   private val removeUser: RemoveUserUseCase,

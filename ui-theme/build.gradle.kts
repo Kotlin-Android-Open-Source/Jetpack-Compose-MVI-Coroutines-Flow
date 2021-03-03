@@ -26,21 +26,6 @@ android {
     }
   }
 
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-  }
-
-  kotlinOptions {
-    jvmTarget = JavaVersion.VERSION_1_8.toString()
-    useIR = true
-
-    // Opt-in to experimental compose APIs
-    freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
-
-    // Enable experimental coroutines APIs, including collectAsState()
-    freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-  }
   buildFeatures {
     compose = true
   }
