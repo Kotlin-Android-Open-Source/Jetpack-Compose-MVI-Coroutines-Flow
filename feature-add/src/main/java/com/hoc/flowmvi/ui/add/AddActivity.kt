@@ -20,7 +20,6 @@ import com.hoc.flowmvi.ui.add.databinding.ActivityAddBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
@@ -29,8 +28,6 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 
 @AndroidEntryPoint
-@FlowPreview
-@ExperimentalCoroutinesApi
 class AddActivity : AppCompatActivity() {
   //  private val addVM by viewModel<AddVM>(state = emptyState())
   private val addBinding by lazy(NONE) { ActivityAddBinding.inflate(layoutInflater) }
@@ -166,8 +163,6 @@ class AddActivity : AppCompatActivity() {
     )
   }
 
-  @ExperimentalCoroutinesApi
-  @FlowPreview
   internal class IntentProvider @Inject constructor() : IntentProviders.Add {
     override fun makeIntent(context: Context): Intent =
       Intent(context, AddActivity::class.java)

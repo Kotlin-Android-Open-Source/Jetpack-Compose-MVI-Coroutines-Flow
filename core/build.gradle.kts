@@ -25,6 +25,13 @@ android {
       )
     }
   }
+
+  buildFeatures {
+    compose = true
+  }
+  composeOptions {
+    kotlinCompilerExtensionVersion = deps.compose.version
+  }
 }
 
 dependencies {
@@ -38,4 +45,6 @@ dependencies {
 
   implementation(deps.lifecycle.commonJava8)
   implementation(deps.lifecycle.runtimeKtx)
+
+  implementation(deps.compose.foundation)
 }

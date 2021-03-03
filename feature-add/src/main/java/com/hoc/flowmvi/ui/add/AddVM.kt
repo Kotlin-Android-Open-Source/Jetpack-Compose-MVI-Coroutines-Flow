@@ -33,8 +33,6 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 @HiltViewModel
 internal class AddVM @Inject constructor(
   private val addUser: AddUserUseCase,

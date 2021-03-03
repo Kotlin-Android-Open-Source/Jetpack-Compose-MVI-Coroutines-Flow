@@ -7,8 +7,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 
-@ExperimentalCoroutinesApi
-@FlowPreview
 internal class NavigatorImpl @Inject constructor(
   private val add: IntentProviders.Add
 ) : Navigator {

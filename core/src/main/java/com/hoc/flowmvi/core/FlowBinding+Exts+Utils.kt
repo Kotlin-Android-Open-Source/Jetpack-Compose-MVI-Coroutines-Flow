@@ -14,6 +14,9 @@ import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,15 +37,14 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.EmptyCoroutineContext
+
+@Suppress("unused")
+inline val Any?.unit get() = Unit
 
 fun <T> SendChannel<T>.safeOffer(element: T): Boolean {
   return runCatching { offer(element) }.getOrDefault(false)
 }
 
-@ExperimentalCoroutinesApi
 fun EditText.firstChange(): Flow<Unit> {
   return callbackFlow {
     val listener = doOnTextChanged { _, _, _, _ -> safeOffer(Unit) }
@@ -55,7 +57,6 @@ fun EditText.firstChange(): Flow<Unit> {
   }.take(1)
 }
 
-@ExperimentalCoroutinesApi
 @CheckResult
 fun SwipeRefreshLayout.refreshes(): Flow<Unit> {
   return callbackFlow {
@@ -64,7 +65,6 @@ fun SwipeRefreshLayout.refreshes(): Flow<Unit> {
   }
 }
 
-@ExperimentalCoroutinesApi
 @CheckResult
 fun View.clicks(): Flow<View> {
   return callbackFlow {
@@ -73,7 +73,6 @@ fun View.clicks(): Flow<View> {
   }
 }
 
-@ExperimentalCoroutinesApi
 @CheckResult
 fun EditText.textChanges(): Flow<CharSequence?> {
   return callbackFlow<CharSequence?> {
@@ -83,11 +82,9 @@ fun EditText.textChanges(): Flow<CharSequence?> {
   }.onStart { emit(text) }
 }
 
-@ExperimentalCoroutinesApi
 fun <T, R> Flow<T>.flatMapFirst(transform: suspend (value: T) -> Flow<R>): Flow<R> =
   map(transform).flattenFirst()
 
-@ExperimentalCoroutinesApi
 fun <T> Flow<Flow<T>>.flattenFirst(): Flow<T> = channelFlow {
   val outerScope = this
   val busy = AtomicBoolean(false)
@@ -135,7 +132,6 @@ fun <A, B, R> Flow<A>.withLatestFrom(other: Flow<B>, transform: suspend (A, B) -
 
 fun Context.toast(text: CharSequence) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
 
-@ExperimentalCoroutinesApi
 suspend fun main() {
   (1..2000).asFlow()
     .onEach { delay(50) }

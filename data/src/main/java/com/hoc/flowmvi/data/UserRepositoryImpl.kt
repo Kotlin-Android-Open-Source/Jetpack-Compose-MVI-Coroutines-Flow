@@ -12,8 +12,6 @@ import com.hoc.flowmvi.domain.repository.UserRepository
 import javax.inject.Inject
 import kotlin.time.ExperimentalTime
 import kotlin.time.milliseconds
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,7 +22,6 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.withContext
 
 @ExperimentalTime
-@ExperimentalCoroutinesApi
 internal class UserRepositoryImpl @Inject constructor(
   private val userApiService: UserApiService,
   private val dispatchers: CoroutineDispatchers,
@@ -54,7 +51,6 @@ internal class UserRepositoryImpl @Inject constructor(
     }
   }
 
-  @FlowPreview
   override fun getUsers(): Flow<List<User>> {
     return flow {
       val initial = getUsersFromRemote()

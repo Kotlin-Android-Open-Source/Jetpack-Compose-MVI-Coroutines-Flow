@@ -1,15 +1,17 @@
 package com.hoc.flowmvi.ui.main
 
 import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hoc.flowmvi.core.IntentDispatcher
 import com.hoc.flowmvi.core.flatMapFirst
 import com.hoc.flowmvi.domain.usecase.GetUsersUseCase
 import com.hoc.flowmvi.domain.usecase.RefreshGetUsersUseCase
 import com.hoc.flowmvi.domain.usecase.RemoveUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -35,8 +37,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 
 @Suppress("USELESS_CAST")
-@FlowPreview
-@ExperimentalCoroutinesApi
 @HiltViewModel
 internal class MainVM @Inject constructor(
   private val getUsersUseCase: GetUsersUseCase,
@@ -46,10 +46,12 @@ internal class MainVM @Inject constructor(
   private val _eventChannel = Channel<SingleEvent>(Channel.BUFFERED)
   private val _intentFlow = MutableSharedFlow<ViewIntent>(extraBufferCapacity = 64)
 
-  val viewState: StateFlow<ViewState>
-  val singleEvent: Flow<SingleEvent> get() = _eventChannel.receiveAsFlow()
+  private val viewState: StateFlow<ViewState>
 
-  suspend fun processIntent(intent: ViewIntent) = _intentFlow.emit(intent)
+  @Composable
+  internal operator fun component1(): ViewState = viewState.collectAsState().value
+  internal operator fun component2(): Flow<SingleEvent> = _eventChannel.receiveAsFlow()
+  internal operator fun component3(): IntentDispatcher<ViewIntent> = { _intentFlow.tryEmit(it) }
 
   init {
     val initialVS = ViewState.initial()
@@ -89,6 +91,7 @@ internal class MainVM @Inject constructor(
     }
   }
 
+  @OptIn(FlowPreview::class)
   private fun Flow<ViewIntent>.toPartialChangeFlow(): Flow<PartialChange> {
     val getUserChanges = getUsersUseCase()
       .onEach { Log.d("###", "[MAIN_VM] Emit users.size=${it.size}") }

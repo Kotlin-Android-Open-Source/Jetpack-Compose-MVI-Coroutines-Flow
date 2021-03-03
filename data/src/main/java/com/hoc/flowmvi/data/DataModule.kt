@@ -27,7 +27,6 @@ private annotation class BaseUrl
 @Module
 @InstallIn(SingletonComponent::class)
 internal abstract class DataModule {
-  @ExperimentalCoroutinesApi
   @ExperimentalTime
   @Binds
   @Singleton
