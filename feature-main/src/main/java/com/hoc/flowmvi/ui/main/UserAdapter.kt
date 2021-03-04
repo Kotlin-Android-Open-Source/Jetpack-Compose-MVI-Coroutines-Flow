@@ -1,15 +1,15 @@
 package com.hoc.flowmvi.ui.main
 //
-//import android.view.LayoutInflater
-//import android.view.ViewGroup
-//import androidx.recyclerview.widget.DiffUtil
-//import androidx.recyclerview.widget.ListAdapter
-//import androidx.recyclerview.widget.RecyclerView
-//import coil.load
-//import coil.transform.CircleCropTransformation
-////import com.hoc.flowmvi.ui.main.databinding.ItemRecyclerUserBinding
+// import android.view.LayoutInflater
+// import android.view.ViewGroup
+// import androidx.recyclerview.widget.DiffUtil
+// import androidx.recyclerview.widget.ListAdapter
+// import androidx.recyclerview.widget.RecyclerView
+// import coil.load
+// import coil.transform.CircleCropTransformation
+// //import com.hoc.flowmvi.ui.main.databinding.ItemRecyclerUserBinding
 //
-//internal class UserAdapter :
+// internal class UserAdapter :
 //  ListAdapter<UserItem, UserAdapter.VH>(
 //    object : DiffUtil.ItemCallback<UserItem>() {
 //      override fun areItemsTheSame(oldItem: UserItem, newItem: UserItem) =
@@ -32,16 +32,16 @@ package com.hoc.flowmvi.ui.main
 //
 //  class VH(private val binding: ItemRecyclerUserBinding) : RecyclerView.ViewHolder(binding.root) {
 //    fun bind(item: UserItem) {
-////      binding.run {
-////        nameTextView.text = item.fullName
-////        emailTextView.text = item.email
-////        avatarImage.load(item.avatar) {
-////          crossfade(200)
-////          placeholder(R.drawable.ic_baseline_person_24)
-////          error(R.drawable.ic_baseline_person_24)
-////          transformations(CircleCropTransformation())
-////        }
-////      }
+// //      binding.run {
+// //        nameTextView.text = item.fullName
+// //        emailTextView.text = item.email
+// //        avatarImage.load(item.avatar) {
+// //          crossfade(200)
+// //          placeholder(R.drawable.ic_baseline_person_24)
+// //          error(R.drawable.ic_baseline_person_24)
+// //          transformations(CircleCropTransformation())
+// //        }
+// //      }
 //    }
 //  }
-//}
+// }

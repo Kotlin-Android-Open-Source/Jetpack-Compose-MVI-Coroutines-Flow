@@ -6,13 +6,13 @@ import com.hoc.flowmvi.domain.entity.User
 import javax.inject.Inject
 
 internal class UserResponseToUserDomainMapper @Inject constructor() : Mapper<UserResponse, User> {
-  override fun invoke(response: UserResponse): User {
+  override fun invoke(param: UserResponse): User {
     return User(
-      id = response.id,
-      avatar = response.avatar,
-      email = response.email,
-      firstName = response.firstName,
-      lastName = response.lastName
+      id = param.id,
+      avatar = param.avatar,
+      email = param.email,
+      firstName = param.firstName,
+      lastName = param.lastName
     )
   }
 }

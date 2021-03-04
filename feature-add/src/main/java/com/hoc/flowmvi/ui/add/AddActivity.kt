@@ -20,7 +20,6 @@ import com.hoc.flowmvi.ui.add.databinding.ActivityAddBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.LazyThreadSafetyMode.NONE
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map

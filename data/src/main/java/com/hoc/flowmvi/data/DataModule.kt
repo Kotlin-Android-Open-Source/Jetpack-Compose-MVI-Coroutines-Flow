@@ -1,6 +1,13 @@
 package com.hoc.flowmvi.data
 
+import com.hoc.flowmvi.core.Mapper
+import com.hoc.flowmvi.data.mapper.UserDomainToUserBodyMapper
+import com.hoc.flowmvi.data.mapper.UserDomainToUserResponseMapper
+import com.hoc.flowmvi.data.mapper.UserResponseToUserDomainMapper
 import com.hoc.flowmvi.data.remote.UserApiService
+import com.hoc.flowmvi.data.remote.UserBody
+import com.hoc.flowmvi.data.remote.UserResponse
+import com.hoc.flowmvi.domain.entity.User
 import com.hoc.flowmvi.domain.repository.UserRepository
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -13,7 +20,6 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlin.time.ExperimentalTime
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
@@ -31,6 +37,15 @@ internal abstract class DataModule {
   @Binds
   @Singleton
   abstract fun userRepository(impl: UserRepositoryImpl): UserRepository
+
+  @Binds
+  abstract fun userResponseToUserMapper(impl: UserResponseToUserDomainMapper): Mapper<UserResponse, User>
+
+  @Binds
+  abstract fun userDomainToUserBodyMapper(impl: UserDomainToUserBodyMapper): Mapper<User, UserBody>
+
+  @Binds
+  abstract fun userDomainToUserResponseMapper(impl: UserDomainToUserResponseMapper): Mapper<User, UserResponse>
 
   internal companion object {
     @Provides

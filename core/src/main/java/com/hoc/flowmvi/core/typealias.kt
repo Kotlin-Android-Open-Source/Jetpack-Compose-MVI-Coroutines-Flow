@@ -1,5 +1,7 @@
 package com.hoc.flowmvi.core
 
-typealias Mapper<T, R> = (T) -> R
+interface Mapper<T, R> {
+  operator fun invoke(param: T): R
+}
 
 typealias IntentDispatcher<I> = (I) -> Unit
