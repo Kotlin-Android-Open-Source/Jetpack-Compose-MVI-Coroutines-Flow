@@ -64,5 +64,5 @@ dependencies {
   implementation(deps.daggerHilt.android)
   kapt(deps.daggerHilt.compiler)
 
-  implementation(deps.coil)
+  implementation(deps.accompanist.coil)
 }

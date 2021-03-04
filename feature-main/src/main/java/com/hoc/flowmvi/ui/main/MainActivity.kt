@@ -6,15 +6,21 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
-import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ContentAlpha
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentAlpha
@@ -32,16 +38,19 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.transform.CircleCropTransformation
 import com.hoc.flowmvi.core.IntentDispatcher
 import com.hoc.flowmvi.core.navigator.Navigator
 import com.hoc.flowmvi.core.navigator.ProvideNavigator
 import com.hoc.flowmvi.core.unit
 import com.hoc.flowmvi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import dev.chrisbanes.accompanist.coil.CoilImage
 import javax.inject.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -138,9 +147,7 @@ internal fun MainContent(
     Column(
       modifier = modifier.fillMaxSize()
     ) {
-      Button(onClick = {
-        processIntent(ViewIntent.Retry)
-      }) {
+      Button(onClick = { processIntent(ViewIntent.Retry) }) {
         Text(text = "RETRY")
       }
       Text(text = state.error.message ?: "An expected error")
@@ -159,13 +166,62 @@ internal fun MainContent(
     return
   }
 
+  val imageSize = 72.dp
+  val padding = 8.dp
+  val itemHeight = imageSize + padding * 2
+
   LazyColumn(
     modifier = modifier.fillMaxSize()
   ) {
-    items(state.userItems) {
-      Card(modifier = Modifier.fillMaxWidth().height(48.dp)) {
-        Text(it.fullName)
+    items(
+      state.userItems,
+      key = { it.id },
+    ) { item ->
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(itemHeight)
+          .padding(all = padding),
+      ) {
+        CoilImage(
+          data = item.avatar,
+          contentDescription = "Avatar for ${item.fullName}",
+          requestBuilder = {
+            transformations(CircleCropTransformation())
+            placeholder(R.drawable.ic_baseline_person_24)
+            error(R.drawable.ic_baseline_person_24)
+          },
+          contentScale = ContentScale.Crop,
+          modifier = Modifier
+            .requiredWidth(imageSize)
+            .requiredHeight(imageSize),
+        )
+
+        Spacer(modifier = Modifier.width(padding))
+
+        Text(item.fullName)
       }
+
+      Divider(
+        modifier = Modifier.padding(horizontal = padding)
+      )
     }
   }
+
+  // TODO: Refresh
+  // SwipeToRefreshLayout(
+  //   refreshingState = state.isRefreshing,
+  //   onRefresh = { processIntent(ViewIntent.Refresh) },
+  //   refreshIndicator = {
+  //     Surface(elevation = 10.dp, shape = CircleShape) {
+  //       CircularProgressIndicator(
+  //         modifier = Modifier
+  //           .size(36.dp)
+  //           .padding(4.dp),
+  //         strokeWidth = 2.dp
+  //       )
+  //     }
+  //   }) {
+  //
+  // }
 }

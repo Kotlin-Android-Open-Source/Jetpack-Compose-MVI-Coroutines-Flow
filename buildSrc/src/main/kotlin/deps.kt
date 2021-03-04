@@ -78,7 +78,10 @@ object deps {
     const val compiler = "com.google.dagger:hilt-compiler:$version"
   }
 
-  const val coil = "io.coil-kt:coil:1.0.0"
+  object accompanist {
+    const val version = "0.6.1"
+    const val coil = "dev.chrisbanes.accompanist:accompanist-coil:$version"
+  }
 
   object test {
     const val junit = "junit:junit:4.13"
