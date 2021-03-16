@@ -6,8 +6,8 @@ import org.gradle.kotlin.dsl.project
 import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
 
-const val ktlintVersion = "0.38.1"
-const val kotlinVersion = "1.4.30"
+const val ktlintVersion = "0.40.0"
+const val kotlinVersion = "1.4.31"
 
 object appConfig {
   const val applicationId = "com.hoc.flowmvi"
@@ -37,7 +37,7 @@ object deps {
   }
 
   object compose {
-    const val version = "1.0.0-beta01"
+    const val version = "1.0.0-beta02"
 
     const val layout = "androidx.compose.foundation:foundation-layout:$version"
     const val foundation = "androidx.compose.foundation:foundation:$version"
@@ -79,7 +79,7 @@ object deps {
   }
 
   object accompanist {
-    const val version = "0.6.1"
+    const val version = "0.6.2-SNAPSHOT"
     const val coil = "dev.chrisbanes.accompanist:accompanist-coil:$version"
   }
 

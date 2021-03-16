@@ -9,9 +9,9 @@ buildscript {
     gradlePluginPortal()
   }
   dependencies {
-    classpath("com.android.tools.build:gradle:7.0.0-alpha08")
+    classpath("com.android.tools.build:gradle:7.0.0-alpha10")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    classpath("com.diffplug.spotless:spotless-plugin-gradle:5.8.2")
+    classpath("com.diffplug.spotless:spotless-plugin-gradle:5.10.0")
     classpath("com.google.dagger:hilt-android-gradle-plugin:${deps.daggerHilt.version}")
   }
 }
@@ -81,6 +81,7 @@ allprojects {
     jcenter()
     mavenCentral()
     maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
   }
 }
 

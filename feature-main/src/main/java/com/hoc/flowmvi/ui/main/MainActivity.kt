@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -186,15 +187,17 @@ internal fun MainContent(
         CoilImage(
           data = item.avatar,
           contentDescription = "Avatar for ${item.fullName}",
-          requestBuilder = {
-            transformations(CircleCropTransformation())
-            placeholder(R.drawable.ic_baseline_person_24)
-            error(R.drawable.ic_baseline_person_24)
-          },
+          requestBuilder = { transformations(CircleCropTransformation()) },
           contentScale = ContentScale.Crop,
+          fadeIn = true,
           modifier = Modifier
             .requiredWidth(imageSize)
             .requiredHeight(imageSize),
+          loading = {
+            Box(Modifier.matchParentSize()) {
+              CircularProgressIndicator(Modifier.align(Alignment.Center))
+            }
+          },
         )
 
         Spacer(modifier = Modifier.width(padding))
@@ -203,7 +206,8 @@ internal fun MainContent(
       }
 
       Divider(
-        modifier = Modifier.padding(horizontal = padding)
+        modifier = Modifier.padding(horizontal = padding),
+        thickness = 0.7.dp,
       )
     }
   }
