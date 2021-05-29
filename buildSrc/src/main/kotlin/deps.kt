@@ -7,7 +7,7 @@ import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
 
 const val ktlintVersion = "0.40.0"
-const val kotlinVersion = "1.4.31"
+const val kotlinVersion = "1.5.0"
 
 object appConfig {
   const val applicationId = "com.hoc.flowmvi"
@@ -37,7 +37,7 @@ object deps {
   }
 
   object compose {
-    const val version = "1.0.0-beta02"
+    const val version = "1.0.0-beta07"
 
     const val layout = "androidx.compose.foundation:foundation-layout:$version"
     const val foundation = "androidx.compose.foundation:foundation:$version"
@@ -65,22 +65,22 @@ object deps {
   }
 
   object jetbrains {
-    private const val version = "1.4.0"
+    private const val version = "1.5.0"
 
     const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
     const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
   }
 
   object daggerHilt {
-    const val version = "2.33-beta"
+    const val version = "2.36"
     const val android = "com.google.dagger:hilt-android:$version"
     const val core = "com.google.dagger:hilt-core:$version"
     const val compiler = "com.google.dagger:hilt-compiler:$version"
   }
 
   object accompanist {
-    const val version = "0.6.2-SNAPSHOT"
-    const val coil = "dev.chrisbanes.accompanist:accompanist-coil:$version"
+    const val version = "0.10.0"
+    const val coil = "com.google.accompanist:accompanist-coil:$version"
   }
 
   object test {
