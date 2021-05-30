@@ -7,7 +7,7 @@ import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
 
 const val ktlintVersion = "0.40.0"
-const val kotlinVersion = "1.5.0"
+const val kotlinVersion = "1.4.32"
 
 object appConfig {
   const val applicationId = "com.hoc.flowmvi"
@@ -30,8 +30,6 @@ object deps {
     const val appCompat = "androidx.appcompat:appcompat:1.3.0-alpha02"
     const val coreKtx = "androidx.core:core-ktx:1.5.0-alpha02"
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.1"
-    const val recyclerView = "androidx.recyclerview:recyclerview:1.2.0-alpha05"
-    const val swipeRefreshLayout = "androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01"
     const val material = "com.google.android.material:material:1.3.0-alpha02"
     const val activityCompose = "androidx.activity:activity-compose:1.3.0-alpha03"
   }
@@ -65,7 +63,7 @@ object deps {
   }
 
   object jetbrains {
-    private const val version = "1.5.0"
+    private const val version = "1.4.3"
 
     const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
     const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"

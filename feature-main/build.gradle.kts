@@ -52,9 +52,7 @@ dependencies {
   implementation(deps.lifecycle.viewModelKtx)
   implementation(deps.lifecycle.runtimeKtx)
 
-  implementation(deps.androidx.recyclerView)
   implementation(deps.androidx.constraintLayout)
-  implementation(deps.androidx.swipeRefreshLayout)
   implementation(deps.androidx.material)
 
   implementation(deps.jetbrains.coroutinesCore)

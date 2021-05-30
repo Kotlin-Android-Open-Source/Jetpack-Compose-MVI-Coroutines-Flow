@@ -37,8 +37,6 @@ dependencies {
   implementation(deps.jetbrains.coroutinesAndroid)
 
   implementation(deps.androidx.coreKtx)
-  implementation(deps.androidx.swipeRefreshLayout)
-  implementation(deps.androidx.recyclerView)
   implementation(deps.androidx.material)
 
   implementation(deps.lifecycle.commonJava8)
