@@ -16,15 +16,15 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import java.util.concurrent.TimeUnit
-import javax.inject.Qualifier
-import javax.inject.Singleton
-import kotlin.time.ExperimentalTime
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
+import javax.inject.Qualifier
+import javax.inject.Singleton
+import kotlin.time.ExperimentalTime
 
 @Retention(AnnotationRetention.BINARY)
 @Qualifier

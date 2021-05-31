@@ -11,7 +11,6 @@ import com.hoc.flowmvi.core.withLatestFrom
 import com.hoc.flowmvi.domain.entity.User
 import com.hoc.flowmvi.domain.usecase.AddUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,6 +29,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
 @HiltViewModel
 internal class AddVM @Inject constructor(
