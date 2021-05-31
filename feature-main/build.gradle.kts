@@ -44,7 +44,6 @@ dependencies {
   implementation(uiTheme)
 
   implementationCompose()
-  implementation(deps.lifecycle.viewModelCompose)
 
   implementation(deps.androidx.appCompat)
   implementation(deps.androidx.coreKtx)

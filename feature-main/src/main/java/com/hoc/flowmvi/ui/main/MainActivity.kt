@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,13 +46,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.transform.CircleCropTransformation
+import com.google.accompanist.coil.rememberCoilPainter
+import com.google.accompanist.imageloading.ImageLoadState
 import com.hoc.flowmvi.core.IntentDispatcher
 import com.hoc.flowmvi.core.navigator.Navigator
 import com.hoc.flowmvi.core.navigator.ProvideNavigator
 import com.hoc.flowmvi.core.unit
 import com.hoc.flowmvi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import dev.chrisbanes.accompanist.coil.CoilImage
 import javax.inject.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -184,21 +186,29 @@ internal fun MainContent(
           .height(itemHeight)
           .padding(all = padding),
       ) {
-        CoilImage(
-          data = item.avatar,
-          contentDescription = "Avatar for ${item.fullName}",
+        val painter = rememberCoilPainter(
+          request = item.avatar,
           requestBuilder = { transformations(CircleCropTransformation()) },
-          contentScale = ContentScale.Crop,
           fadeIn = true,
-          modifier = Modifier
-            .requiredWidth(imageSize)
-            .requiredHeight(imageSize),
-          loading = {
-            Box(Modifier.matchParentSize()) {
-              CircularProgressIndicator(Modifier.align(Alignment.Center))
-            }
-          },
         )
+
+        Box {
+          Image(
+            painter = painter,
+            contentDescription = "Avatar for ${item.fullName}",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+              .requiredWidth(imageSize)
+              .requiredHeight(imageSize),
+          )
+
+          when(painter.loadState) {
+            ImageLoadState.Empty -> Unit
+            is ImageLoadState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+            is ImageLoadState.Success -> Unit
+            is ImageLoadState.Error -> Unit
+          }
+        }
 
         Spacer(modifier = Modifier.width(padding))
 

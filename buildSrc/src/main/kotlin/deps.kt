@@ -31,7 +31,7 @@ object deps {
     const val coreKtx = "androidx.core:core-ktx:1.5.0-alpha02"
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.1"
     const val material = "com.google.android.material:material:1.3.0-alpha02"
-    const val activityCompose = "androidx.activity:activity-compose:1.3.0-alpha03"
+    const val activityCompose = "androidx.activity:activity-compose:1.3.0-alpha08"
   }
 
   object compose {
@@ -52,7 +52,7 @@ object deps {
     const val viewModelKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:$version" // viewModelScope
     const val runtimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$version" // lifecycleScope
     const val commonJava8 = "androidx.lifecycle:lifecycle-common-java8:$version"
-    const val viewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha02"
+    const val viewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha05"
   }
 
   object squareup {
@@ -108,12 +108,13 @@ inline val DependencyHandler.featureAdd get() = project(":feature-add")
 fun DependencyHandler.implementationCompose() {
   arrayOf(
     deps.androidx.activityCompose,
+    deps.lifecycle.viewModelCompose,
     deps.compose.layout,
     deps.compose.foundation,
     deps.compose.ui,
     deps.compose.material,
     deps.compose.materialIconsExtended,
-    deps.compose.runtime
+    deps.compose.runtime,
   ).forEach { add("implementation", it) }
 
   add("debugImplementation", deps.compose.tooling)
