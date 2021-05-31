@@ -1,8 +1,8 @@
 package com.hoc.flowmvi.core
 
+import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlinx.coroutines.delay
 
 @ExperimentalTime
 suspend inline fun <T> retrySuspend(
