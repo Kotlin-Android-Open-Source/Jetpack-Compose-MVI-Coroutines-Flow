@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -58,6 +59,7 @@ import com.hoc.flowmvi.core.IntentDispatcher
 import com.hoc.flowmvi.core.navigator.Navigator
 import com.hoc.flowmvi.core.navigator.ProvideNavigator
 import com.hoc.flowmvi.core.unit
+import com.hoc.flowmvi.domain.entity.User
 import com.hoc.flowmvi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -189,7 +191,6 @@ private fun MainContent(
     processIntent = processIntent,
     isRefreshing = state.isRefreshing,
     userItems = state.userItems,
-    modifier = modifier.fillMaxSize(),
   )
 }
 
@@ -200,9 +201,6 @@ private fun UsersList(
   processIntent: IntentDispatcher<ViewIntent>,
   modifier: Modifier = Modifier
 ) {
-  val imageSize = 72.dp
-  val padding = 8.dp
-  val itemHeight = imageSize + padding * 2
   val lastIndex = userItems.lastIndex
 
   SwipeRefresh(
@@ -210,88 +208,18 @@ private fun UsersList(
     onRefresh = { processIntent(ViewIntent.Refresh) },
   ) {
     LazyColumn(
-      modifier = modifier,
-      verticalArrangement = Arrangement.spacedBy(12.dp),
+      modifier = modifier.fillMaxSize(),
     ) {
       itemsIndexed(
         userItems,
         key = { _, item -> item.id },
       ) { index, item ->
-        Row(
+
+        UserRow(
+          item = item,
           modifier = Modifier
-            .fillParentMaxWidth()
-            .height(itemHeight)
-            .padding(all = padding),
-        ) {
-          val painter = rememberCoilPainter(
-            request = item.avatar,
-            requestBuilder = { transformations(CircleCropTransformation()) },
-            fadeIn = true,
-            previewPlaceholder = R.drawable.ic_baseline_person_24
-          )
-
-          Box(
-            modifier = Modifier
-              .requiredWidth(imageSize)
-              .requiredHeight(imageSize),
-          ) {
-            Image(
-              painter = painter,
-              contentDescription = "Avatar for ${item.fullName}",
-              contentScale = ContentScale.Crop,
-              modifier = Modifier
-                .requiredWidth(imageSize)
-                .requiredHeight(imageSize),
-            )
-
-            when (painter.loadState) {
-              ImageLoadState.Empty -> Unit
-              is ImageLoadState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-              is ImageLoadState.Success -> Unit
-              is ImageLoadState.Error -> {
-                Column(
-                  modifier = Modifier.fillMaxSize(),
-                  verticalArrangement = Arrangement.Center,
-                  horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                  Icon(
-                    imageVector = Icons.Filled.ErrorOutline,
-                    contentDescription = "Error",
-                    modifier = Modifier.size(width = 20.dp, height = 20.dp)
-                  )
-
-                  Spacer(modifier = Modifier.height(8.dp))
-
-                  Text("Error", style = MaterialTheme.typography.caption)
-                }
-              }
-            }
-          }
-
-          Spacer(modifier = Modifier.width(padding))
-
-          Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceEvenly
-          ) {
-            Text(
-              item.fullName,
-              style = MaterialTheme.typography.subtitle1,
-              maxLines = 1,
-              overflow = TextOverflow.Ellipsis,
-            )
-
-            Text(
-              item.email,
-              style = MaterialTheme.typography.body2.copy(
-                fontSize = 12.sp,
-                color = MaterialTheme.typography.caption.color,
-              ),
-              maxLines = 1,
-              overflow = TextOverflow.Ellipsis,
-            )
-          }
-        }
+            .fillParentMaxWidth(),
+        )
 
         if (index < lastIndex) {
           Divider(
@@ -309,23 +237,99 @@ private fun UserRow(
   item: UserItem,
   modifier: Modifier = Modifier,
 ) {
+  val imageSize = 72.dp
+  val padding = 8.dp
+  val itemHeight = imageSize + padding * 2
+  Row(
+    modifier = modifier
+      .requiredHeight(itemHeight)
+      .padding(all = padding),
+  ) {
+    val painter = rememberCoilPainter(
+      request = item.avatar,
+      requestBuilder = { transformations(CircleCropTransformation()) },
+      fadeIn = true,
+    )
 
+    Box(
+      modifier = Modifier
+        .requiredWidth(imageSize)
+        .requiredHeight(imageSize),
+    ) {
+      Image(
+        painter = painter,
+        contentDescription = "Avatar for ${item.fullName}",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.fillMaxSize(),
+      )
+
+      when (painter.loadState) {
+        ImageLoadState.Empty -> Unit
+        is ImageLoadState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+        is ImageLoadState.Success -> Unit
+        is ImageLoadState.Error -> {
+          Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+          ) {
+            Icon(
+              imageVector = Icons.Filled.ErrorOutline,
+              contentDescription = "Error",
+              modifier = Modifier.size(width = 20.dp, height = 20.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text("Error", style = MaterialTheme.typography.caption)
+          }
+        }
+      }
+    }
+
+    Spacer(modifier = Modifier.width(padding))
+
+    Column(
+      modifier = Modifier
+        .weight(1f)
+        .align(Alignment.CenterVertically),
+      verticalArrangement = Arrangement.Center,
+    ) {
+      Text(
+        item.fullName,
+        style = MaterialTheme.typography.subtitle1,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.padding(bottom = 4.dp)
+      )
+
+      Text(
+        item.email,
+        style = MaterialTheme.typography.body2.copy(
+          fontSize = 12.sp,
+          color = MaterialTheme.typography.caption.color,
+        ),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+      )
+    }
+  }
 }
 
-//@Preview(
-//  widthDp = 300,
-//)
-//@Composable
-//fun UserRowPreview() {
-//  UserRow(
-//    item = UserItem(
-//      User(
-//        id = "123",
-//        email = "hoc081098@gmail.com",
-//        firstName = "Hoc",
-//        lastName = "Petrus ".repeat(10),
-//        avatar = "test",
-//      )
-//    ),
-//  )
-//}
+@Preview(
+  widthDp = 300,
+)
+@Composable
+fun UserRowPreview() {
+  UserRow(
+    item = UserItem(
+      User(
+        id = "123",
+        email = "hoc081098@gmail.com",
+        firstName = "Hoc",
+        lastName = "Petrus ".repeat(10),
+        avatar = "test",
+      )
+    ),
+  )
+}
