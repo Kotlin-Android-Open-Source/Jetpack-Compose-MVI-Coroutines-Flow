@@ -77,8 +77,9 @@ object deps {
   }
 
   object accompanist {
-    const val version = "0.10.0"
+    private const val version = "0.10.0"
     const val coil = "com.google.accompanist:accompanist-coil:$version"
+    const val swiperefresh = "com.google.accompanist:accompanist-swiperefresh:$version"
   }
 
   object test {

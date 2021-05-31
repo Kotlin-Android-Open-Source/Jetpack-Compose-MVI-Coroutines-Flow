@@ -16,9 +16,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ContentAlpha
@@ -33,6 +34,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -43,11 +45,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.transform.CircleCropTransformation
 import com.google.accompanist.coil.rememberCoilPainter
 import com.google.accompanist.imageloading.ImageLoadState
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.hoc.flowmvi.core.IntentDispatcher
 import com.hoc.flowmvi.core.navigator.Navigator
 import com.hoc.flowmvi.core.navigator.ProvideNavigator
@@ -147,95 +153,131 @@ internal fun MainContent(
   modifier: Modifier = Modifier
 ) {
   if (state.error != null) {
-    Column(
-      modifier = modifier.fillMaxSize()
+    return Column(
+      modifier = modifier
+        .fillMaxSize()
+        .padding(8.dp),
+      verticalArrangement = Arrangement.Center,
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+      Text(
+        text = state.error.message ?: "An expected error",
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Center,
+      )
+
+      Spacer(modifier = Modifier.height(8.dp))
+
       Button(onClick = { processIntent(ViewIntent.Retry) }) {
         Text(text = "RETRY")
       }
-      Text(text = state.error.message ?: "An expected error")
     }
-    return
   }
 
   if (state.isLoading) {
-    Column(
+    return Column(
       modifier = modifier.fillMaxSize(),
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       CircularProgressIndicator()
     }
-    return
   }
 
+  UsersList(
+    processIntent = processIntent,
+    isRefreshing = state.isRefreshing,
+    userItems = state.userItems,
+  )
+}
+
+@Composable
+private fun UsersList(
+  isRefreshing: Boolean,
+  userItems: List<UserItem>,
+  processIntent: IntentDispatcher<ViewIntent>,
+  modifier: Modifier = Modifier
+) {
   val imageSize = 72.dp
   val padding = 8.dp
   val itemHeight = imageSize + padding * 2
+  val lastIndex = userItems.lastIndex
 
-  LazyColumn(
-    modifier = modifier.fillMaxSize()
+  SwipeRefresh(
+    state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+    onRefresh = { processIntent(ViewIntent.Refresh) },
   ) {
-    items(
-      state.userItems,
-      key = { it.id },
-    ) { item ->
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .height(itemHeight)
-          .padding(all = padding),
-      ) {
-        val painter = rememberCoilPainter(
-          request = item.avatar,
-          requestBuilder = { transformations(CircleCropTransformation()) },
-          fadeIn = true,
-        )
+    LazyColumn(
+      modifier = modifier.fillMaxSize(),
+      verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+      itemsIndexed(
+        userItems,
+        key = { _, item -> item.id },
+      ) { index, item ->
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(itemHeight)
+            .padding(all = padding),
+        ) {
+          val painter = rememberCoilPainter(
+            request = item.avatar,
+            requestBuilder = { transformations(CircleCropTransformation()) },
+            fadeIn = true,
+          )
 
-        Box {
-          Image(
-            painter = painter,
-            contentDescription = "Avatar for ${item.fullName}",
-            contentScale = ContentScale.Crop,
+          Box(
             modifier = Modifier
               .requiredWidth(imageSize)
               .requiredHeight(imageSize),
-          )
+          ) {
+            Image(
+              painter = painter,
+              contentDescription = "Avatar for ${item.fullName}",
+              contentScale = ContentScale.Crop,
+              modifier = Modifier
+                .requiredWidth(imageSize)
+                .requiredHeight(imageSize),
+            )
 
-          when(painter.loadState) {
-            ImageLoadState.Empty -> Unit
-            is ImageLoadState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-            is ImageLoadState.Success -> Unit
-            is ImageLoadState.Error -> Unit
+            when (painter.loadState) {
+              ImageLoadState.Empty -> Unit
+              is ImageLoadState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+              is ImageLoadState.Success -> Unit
+              is ImageLoadState.Error -> {
+                Column(
+                  modifier = Modifier.fillMaxSize(),
+                  verticalArrangement = Arrangement.Center,
+                  horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                  Icon(
+                    imageVector = Icons.Filled.ErrorOutline,
+                    contentDescription = "Error",
+                    modifier = Modifier.size(width = 20.dp, height = 20.dp)
+                  )
+
+                  Spacer(modifier = Modifier.height(8.dp))
+
+                  Text("Error", style = MaterialTheme.typography.caption)
+                }
+              }
+            }
           }
+
+          Spacer(modifier = Modifier.width(padding))
+
+          Text(item.fullName)
         }
 
-        Spacer(modifier = Modifier.width(padding))
-
-        Text(item.fullName)
+        if (index < lastIndex) {
+          Divider(
+            modifier = Modifier.padding(horizontal = padding),
+            thickness = 0.7.dp,
+          )
+        }
       }
-
-      Divider(
-        modifier = Modifier.padding(horizontal = padding),
-        thickness = 0.7.dp,
-      )
     }
   }
-
-  // TODO: Refresh
-  // SwipeToRefreshLayout(
-  //   refreshingState = state.isRefreshing,
-  //   onRefresh = { processIntent(ViewIntent.Refresh) },
-  //   refreshIndicator = {
-  //     Surface(elevation = 10.dp, shape = CircleShape) {
-  //       CircularProgressIndicator(
-  //         modifier = Modifier
-  //           .size(36.dp)
-  //           .padding(4.dp),
-  //         strokeWidth = 2.dp
-  //       )
-  //     }
-  //   }) {
-  //
-  // }
 }
