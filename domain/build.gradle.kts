@@ -1,8 +1,12 @@
 plugins {
   kotlin
+  kotlinKapt
 }
 
 dependencies {
   implementation(deps.jetbrains.coroutinesCore)
-  implementation(deps.koin.core)
+
+  val dagger = "2.33"
+  implementation("com.google.dagger:dagger:$dagger")
+  kapt("com.google.dagger:dagger-compiler:$dagger")
 }

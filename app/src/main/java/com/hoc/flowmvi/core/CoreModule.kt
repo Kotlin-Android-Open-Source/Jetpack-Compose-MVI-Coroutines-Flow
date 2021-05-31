@@ -2,14 +2,20 @@ package com.hoc.flowmvi.core
 
 import com.hoc.flowmvi.core.dispatchers.CoroutineDispatchers
 import com.hoc.flowmvi.core.navigator.Navigator
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import org.koin.dsl.module
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-@FlowPreview
-@ExperimentalCoroutinesApi
-val coreModule = module {
-  single<CoroutineDispatchers> { CoroutineDispatchersImpl() }
+@Module
+@InstallIn(SingletonComponent::class)
+internal abstract class CoreModule {
+  @Binds
+  @Singleton
+  abstract fun coroutineDispatchers(impl: CoroutineDispatchersImpl): CoroutineDispatchers
 
-  single<Navigator> { NavigatorImpl(add = get()) }
+  @Binds
+  @Singleton
+  abstract fun navigator(impl: NavigatorImpl): Navigator
 }

@@ -1,6 +1,12 @@
 plugins {
   androidLib
   kotlinAndroid
+  kotlinKapt
+  daggerHiltAndroid
+}
+
+hilt {
+  enableExperimentalClasspathAggregation = true
 }
 
 android {
@@ -10,8 +16,6 @@ android {
   defaultConfig {
     minSdkVersion(appConfig.minSdkVersion)
     targetSdkVersion(appConfig.targetSdkVersion)
-    versionCode = appConfig.versionCode
-    versionName = appConfig.versionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -26,18 +30,20 @@ android {
     }
   }
 
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+  buildFeatures {
+    compose = true
   }
-  kotlinOptions { jvmTarget = JavaVersion.VERSION_1_8.toString() }
-
-  buildFeatures { viewBinding = true }
+  composeOptions {
+    kotlinCompilerExtensionVersion = deps.compose.version
+  }
 }
 
 dependencies {
   implementation(domain)
   implementation(core)
+  implementation(uiTheme)
+
+  implementationCompose()
 
   implementation(deps.androidx.appCompat)
   implementation(deps.androidx.coreKtx)
@@ -45,12 +51,13 @@ dependencies {
   implementation(deps.lifecycle.viewModelKtx)
   implementation(deps.lifecycle.runtimeKtx)
 
-  implementation(deps.androidx.recyclerView)
   implementation(deps.androidx.constraintLayout)
-  implementation(deps.androidx.swipeRefreshLayout)
   implementation(deps.androidx.material)
 
   implementation(deps.jetbrains.coroutinesCore)
-  implementation(deps.koin.androidXViewModel)
-  implementation(deps.coil)
+
+  implementation(deps.daggerHilt.android)
+  kapt(deps.daggerHilt.compiler)
+
+  implementation(deps.accompanist.coil)
 }

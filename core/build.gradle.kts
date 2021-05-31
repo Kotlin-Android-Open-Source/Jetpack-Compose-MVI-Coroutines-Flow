@@ -10,8 +10,6 @@ android {
   defaultConfig {
     minSdkVersion(appConfig.minSdkVersion)
     targetSdkVersion(appConfig.targetSdkVersion)
-    versionCode = appConfig.versionCode
-    versionName = appConfig.versionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -26,11 +24,12 @@ android {
     }
   }
 
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+  buildFeatures {
+    compose = true
   }
-  kotlinOptions { jvmTarget = JavaVersion.VERSION_1_8.toString() }
+  composeOptions {
+    kotlinCompilerExtensionVersion = deps.compose.version
+  }
 }
 
 dependencies {
@@ -38,10 +37,10 @@ dependencies {
   implementation(deps.jetbrains.coroutinesAndroid)
 
   implementation(deps.androidx.coreKtx)
-  implementation(deps.androidx.swipeRefreshLayout)
-  implementation(deps.androidx.recyclerView)
   implementation(deps.androidx.material)
 
   implementation(deps.lifecycle.commonJava8)
   implementation(deps.lifecycle.runtimeKtx)
+
+  implementation(deps.compose.foundation)
 }

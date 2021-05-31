@@ -2,141 +2,240 @@ package com.hoc.flowmvi.ui.main
 
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.hoc.flowmvi.core.SwipeLeftToDeleteCallback
-import com.hoc.flowmvi.core.clicks
-import com.hoc.flowmvi.core.launchWhenStartedUntilStopped
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.LocalContentAlpha
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.transform.CircleCropTransformation
+import com.google.accompanist.coil.rememberCoilPainter
+import com.google.accompanist.imageloading.ImageLoadState
+import com.hoc.flowmvi.core.IntentDispatcher
 import com.hoc.flowmvi.core.navigator.Navigator
-import com.hoc.flowmvi.core.refreshes
-import com.hoc.flowmvi.core.safeOffer
-import com.hoc.flowmvi.core.toast
-import com.hoc.flowmvi.ui.main.databinding.ActivityMainBinding
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
+import com.hoc.flowmvi.core.navigator.ProvideNavigator
+import com.hoc.flowmvi.core.unit
+import com.hoc.flowmvi.ui.theme.AppTheme
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.LazyThreadSafetyMode.NONE
 
-@FlowPreview
-@ExperimentalCoroutinesApi
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-  private val mainVM by viewModel<MainVM>()
-  private val navigator by inject<Navigator>()
-
-  private val userAdapter = UserAdapter()
-  private val mainBinding by lazy(NONE) { ActivityMainBinding.inflate(layoutInflater) }
-
-  private val removeChannel = Channel<UserItem>(Channel.BUFFERED)
+  @Inject
+  internal lateinit var navigator: Navigator
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(mainBinding.root)
 
-    setupViews()
-    bindVM(mainVM)
-  }
-
-  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    return when (item.itemId) {
-      R.id.add_action -> {
-        navigator.run { navigateToAdd() }
-        true
-      }
-      else -> super.onOptionsItemSelected(item)
-    }
-  }
-
-  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-    menuInflater.inflate(R.menu.menu_main, menu)
-    return true
-  }
-
-  private fun setupViews() {
-    mainBinding.usersRecycler.run {
-      setHasFixedSize(true)
-      layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-      adapter = userAdapter
-      addItemDecoration(DividerItemDecoration(context, RecyclerView.VERTICAL))
-
-      ItemTouchHelper(
-        SwipeLeftToDeleteCallback(context) cb@{ position ->
-          val userItem = mainVM.viewState.value.userItems[position]
-          removeChannel.safeOffer(userItem)
+    setContent {
+      AppTheme {
+        Surface(color = MaterialTheme.colors.background) {
+          ProvideNavigator(navigator = navigator) {
+            MainScreen()
+          }
         }
-      ).attachToRecyclerView(this)
+      }
     }
   }
+}
 
-  private fun bindVM(mainVM: MainVM) {
-    // observe view model
-    mainVM.viewState
-      .onEach { render(it) }
-      .launchWhenStartedUntilStopped(this)
+@Composable
+internal fun MainScreen() {
+  val (state, singleEvent, processIntent) = viewModel<MainVM>()
 
+  DisposableEffect("Initial") {
+    // dispatch initial intent
+    processIntent(ViewIntent.Initial)
+    onDispose { }
+  }
+
+  val scaffoldState = rememberScaffoldState()
+  val snackbarHostState = scaffoldState.snackbarHostState
+
+  LaunchedEffect("SingleEvent") {
     // observe single event
-    mainVM.singleEvent
-      .onEach { handleSingleEvent(it) }
-      .launchWhenStartedUntilStopped(this)
+    singleEvent
+      .onEach { event ->
+        Log.d("MainActivity", "handleSingleEvent $event")
 
-    // pass view intent to view model
-    intents()
-      .onEach { mainVM.processIntent(it) }
-      .launchIn(lifecycleScope)
+        when (event) {
+          SingleEvent.Refresh.Success -> snackbarHostState.showSnackbar("Refresh success")
+          is SingleEvent.Refresh.Failure -> snackbarHostState.showSnackbar("Refresh failure")
+          is SingleEvent.GetUsersError -> snackbarHostState.showSnackbar("Get user failure")
+          is SingleEvent.RemoveUser.Success -> snackbarHostState.showSnackbar("Removed '${event.user.fullName}'")
+          is SingleEvent.RemoveUser.Failure -> snackbarHostState.showSnackbar("Error when removing '${event.user.fullName}'")
+        }.unit
+      }
+      .collect()
   }
 
-  private fun intents() = merge(
-    flowOf(ViewIntent.Initial),
-    mainBinding.swipeRefreshLayout.refreshes().map { ViewIntent.Refresh },
-    mainBinding.retryButton.clicks().map { ViewIntent.Retry },
-    removeChannel.consumeAsFlow().map { ViewIntent.RemoveUser(it) }
-  )
+  Scaffold(
+    topBar = {
+      TopAppBar(
+        title = {
+          Text(text = "MVI Coroutines Flow")
+        },
+        actions = {
+          CompositionLocalProvider(
+            LocalContentAlpha provides ContentAlpha.medium
+          ) {
+            val navigator = Navigator.current
+            val context = LocalContext.current
 
-  private fun handleSingleEvent(event: SingleEvent) {
-    Log.d("MainActivity", "handleSingleEvent $event")
-    return when (event) {
-      SingleEvent.Refresh.Success -> toast("Refresh success")
-      is SingleEvent.Refresh.Failure -> toast("Refresh failure")
-      is SingleEvent.GetUsersError -> toast("Get user failure")
-      is SingleEvent.RemoveUser.Success -> toast("Removed '${event.user.fullName}'")
-      is SingleEvent.RemoveUser.Failure -> toast("Error when removing '${event.user.fullName}'")
+            IconButton(onClick = { navigator.run { context.navigateToAdd() } }) {
+              Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = stringResource(id = R.string.add_user)
+              )
+            }
+          }
+        },
+      )
+    },
+    scaffoldState = scaffoldState,
+  ) {
+    MainContent(
+      state = state,
+      processIntent = processIntent,
+    )
+  }
+}
+
+@Composable
+internal fun MainContent(
+  state: ViewState,
+  processIntent: IntentDispatcher<ViewIntent>,
+  modifier: Modifier = Modifier
+) {
+  if (state.error != null) {
+    Column(
+      modifier = modifier.fillMaxSize()
+    ) {
+      Button(onClick = { processIntent(ViewIntent.Retry) }) {
+        Text(text = "RETRY")
+      }
+      Text(text = state.error.message ?: "An expected error")
     }
+    return
   }
 
-  private fun render(viewState: ViewState) {
-    Log.d("MainActivity", "render $viewState")
+  if (state.isLoading) {
+    Column(
+      modifier = modifier.fillMaxSize(),
+      verticalArrangement = Arrangement.Center,
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      CircularProgressIndicator()
+    }
+    return
+  }
 
-    userAdapter.submitList(viewState.userItems)
+  val imageSize = 72.dp
+  val padding = 8.dp
+  val itemHeight = imageSize + padding * 2
 
-    mainBinding.run {
-      errorGroup.isVisible = viewState.error !== null
-      errorMessageTextView.text = viewState.error?.message
+  LazyColumn(
+    modifier = modifier.fillMaxSize()
+  ) {
+    items(
+      state.userItems,
+      key = { it.id },
+    ) { item ->
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(itemHeight)
+          .padding(all = padding),
+      ) {
+        val painter = rememberCoilPainter(
+          request = item.avatar,
+          requestBuilder = { transformations(CircleCropTransformation()) },
+          fadeIn = true,
+        )
 
-      progressBar.isVisible = viewState.isLoading
+        Box {
+          Image(
+            painter = painter,
+            contentDescription = "Avatar for ${item.fullName}",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+              .requiredWidth(imageSize)
+              .requiredHeight(imageSize),
+          )
 
-      if (viewState.isRefreshing) {
-        if (!swipeRefreshLayout.isRefreshing) {
-          swipeRefreshLayout.post { swipeRefreshLayout.isRefreshing = true }
+          when(painter.loadState) {
+            ImageLoadState.Empty -> Unit
+            is ImageLoadState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+            is ImageLoadState.Success -> Unit
+            is ImageLoadState.Error -> Unit
+          }
         }
-      } else {
-        swipeRefreshLayout.isRefreshing = false
+
+        Spacer(modifier = Modifier.width(padding))
+
+        Text(item.fullName)
       }
 
-      swipeRefreshLayout.isEnabled = !viewState.isLoading && viewState.error === null
+      Divider(
+        modifier = Modifier.padding(horizontal = padding),
+        thickness = 0.7.dp,
+      )
     }
   }
+
+  // TODO: Refresh
+  // SwipeToRefreshLayout(
+  //   refreshingState = state.isRefreshing,
+  //   onRefresh = { processIntent(ViewIntent.Refresh) },
+  //   refreshIndicator = {
+  //     Surface(elevation = 10.dp, shape = CircleShape) {
+  //       CircularProgressIndicator(
+  //         modifier = Modifier
+  //           .size(36.dp)
+  //           .padding(4.dp),
+  //         strokeWidth = 2.dp
+  //       )
+  //     }
+  //   }) {
+  //
+  // }
 }

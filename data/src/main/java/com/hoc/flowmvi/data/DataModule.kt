@@ -1,60 +1,81 @@
 package com.hoc.flowmvi.data
 
+import com.hoc.flowmvi.core.Mapper
 import com.hoc.flowmvi.data.mapper.UserDomainToUserBodyMapper
 import com.hoc.flowmvi.data.mapper.UserDomainToUserResponseMapper
 import com.hoc.flowmvi.data.mapper.UserResponseToUserDomainMapper
 import com.hoc.flowmvi.data.remote.UserApiService
+import com.hoc.flowmvi.data.remote.UserBody
+import com.hoc.flowmvi.data.remote.UserResponse
+import com.hoc.flowmvi.domain.entity.User
 import com.hoc.flowmvi.domain.repository.UserRepository
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import javax.inject.Qualifier
+import javax.inject.Singleton
+import kotlin.time.ExperimentalTime
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
-import org.koin.core.qualifier.named
-import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import kotlin.time.ExperimentalTime
 
-private const val BASE_URL = "BASE_URL"
+@Retention(AnnotationRetention.BINARY)
+@Qualifier
+private annotation class BaseUrl
 
-@ExperimentalTime
-@ExperimentalCoroutinesApi
-@FlowPreview
-val dataModule = module {
-  single { UserApiService(retrofit = get()) }
+@Module
+@InstallIn(SingletonComponent::class)
+internal abstract class DataModule {
+  @ExperimentalTime
+  @Binds
+  @Singleton
+  abstract fun userRepository(impl: UserRepositoryImpl): UserRepository
 
-  single {
-    provideRetrofit(
-      baseUrl = get(named(BASE_URL)),
-      moshi = get(),
-      client = get()
-    )
-  }
+  @Binds
+  abstract fun userResponseToUserMapper(impl: UserResponseToUserDomainMapper): Mapper<UserResponse, User>
 
-  single { provideMoshi() }
+  @Binds
+  abstract fun userDomainToUserBodyMapper(impl: UserDomainToUserBodyMapper): Mapper<User, UserBody>
 
-  single { provideOkHttpClient() }
+  @Binds
+  abstract fun userDomainToUserResponseMapper(impl: UserDomainToUserResponseMapper): Mapper<User, UserResponse>
 
-  factory(named(BASE_URL)) { "https://mvi-coroutines-flow-server.herokuapp.com/" }
+  internal companion object {
+    @Provides
+    @Singleton
+    fun userApiService(retrofit: Retrofit): UserApiService = UserApiService(retrofit = retrofit)
 
-  factory { UserResponseToUserDomainMapper() }
+    @Provides
+    @Singleton
+    fun retrofit(
+      @BaseUrl baseUrl: String,
+      moshi: Moshi,
+      client: OkHttpClient,
+    ): Retrofit =
+      provideRetrofit(
+        baseUrl = baseUrl,
+        moshi = moshi,
+        client = client,
+      )
 
-  factory { UserDomainToUserResponseMapper() }
+    @Provides
+    @Singleton
+    fun moshi(): Moshi = provideMoshi()
 
-  factory { UserDomainToUserBodyMapper() }
+    @Provides
+    @Singleton
+    fun okHttpClient(): OkHttpClient = provideOkHttpClient()
 
-  single<UserRepository> {
-    UserRepositoryImpl(
-      userApiService = get(),
-      dispatchers = get(),
-      responseToDomain = get<UserResponseToUserDomainMapper>(),
-      domainToResponse = get<UserDomainToUserResponseMapper>(),
-      domainToBody = get<UserDomainToUserBodyMapper>()
-    )
+    @Provides
+    @BaseUrl
+    fun baseUrl(): String = "https://mvi-coroutines-flow-server.herokuapp.com/"
   }
 }
 

@@ -9,8 +9,9 @@ import com.hoc.flowmvi.data.remote.UserBody
 import com.hoc.flowmvi.data.remote.UserResponse
 import com.hoc.flowmvi.domain.entity.User
 import com.hoc.flowmvi.domain.repository.UserRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import javax.inject.Inject
+import kotlin.time.ExperimentalTime
+import kotlin.time.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,12 +20,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.withContext
-import kotlin.time.ExperimentalTime
-import kotlin.time.milliseconds
 
 @ExperimentalTime
-@ExperimentalCoroutinesApi
-internal class UserRepositoryImpl constructor(
+internal class UserRepositoryImpl @Inject constructor(
   private val userApiService: UserApiService,
   private val dispatchers: CoroutineDispatchers,
   private val responseToDomain: Mapper<UserResponse, User>,
@@ -48,12 +46,11 @@ internal class UserRepositoryImpl constructor(
         factor = 2.0,
       ) {
         Log.d("###", "[USER_REPO] Retry times=$it")
-        userApiService.getUsers().map(responseToDomain)
+        userApiService.getUsers().map(responseToDomain::invoke)
       }
     }
   }
 
-  @FlowPreview
   override fun getUsers(): Flow<List<User>> {
     return flow {
       val initial = getUsersFromRemote()

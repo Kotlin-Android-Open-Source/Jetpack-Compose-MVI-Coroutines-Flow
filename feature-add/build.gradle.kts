@@ -1,6 +1,12 @@
 plugins {
   androidLib
   kotlinAndroid
+  kotlinKapt
+  daggerHiltAndroid
+}
+
+hilt {
+  enableExperimentalClasspathAggregation = true
 }
 
 android {
@@ -10,8 +16,6 @@ android {
   defaultConfig {
     minSdkVersion(appConfig.minSdkVersion)
     targetSdkVersion(appConfig.targetSdkVersion)
-    versionCode = appConfig.versionCode
-    versionName = appConfig.versionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -25,12 +29,6 @@ android {
       )
     }
   }
-
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-  }
-  kotlinOptions { jvmTarget = JavaVersion.VERSION_1_8.toString() }
 
   buildFeatures { viewBinding = true }
 }
@@ -49,5 +47,7 @@ dependencies {
   implementation(deps.androidx.material)
 
   implementation(deps.jetbrains.coroutinesCore)
-  implementation(deps.koin.androidXViewModel)
+
+  implementation(deps.daggerHilt.android)
+  kapt(deps.daggerHilt.compiler)
 }
