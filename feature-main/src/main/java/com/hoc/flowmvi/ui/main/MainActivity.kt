@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 }
 
 @Composable
-internal fun MainScreen() {
+private fun MainScreen() {
   val (state, singleEvent, processIntent) = viewModel<MainVM>()
 
   DisposableEffect("Initial") {
@@ -147,7 +147,7 @@ internal fun MainScreen() {
 }
 
 @Composable
-internal fun MainContent(
+private fun MainContent(
   state: ViewState,
   processIntent: IntentDispatcher<ViewIntent>,
   modifier: Modifier = Modifier
