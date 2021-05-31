@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
@@ -48,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.transform.CircleCropTransformation
 import com.google.accompanist.coil.rememberCoilPainter
@@ -189,6 +189,7 @@ private fun MainContent(
     processIntent = processIntent,
     isRefreshing = state.isRefreshing,
     userItems = state.userItems,
+    modifier = modifier.fillMaxSize(),
   )
 }
 
@@ -209,7 +210,7 @@ private fun UsersList(
     onRefresh = { processIntent(ViewIntent.Refresh) },
   ) {
     LazyColumn(
-      modifier = modifier.fillMaxSize(),
+      modifier = modifier,
       verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
       itemsIndexed(
@@ -218,7 +219,7 @@ private fun UsersList(
       ) { index, item ->
         Row(
           modifier = Modifier
-            .fillMaxWidth()
+            .fillParentMaxWidth()
             .height(itemHeight)
             .padding(all = padding),
         ) {
@@ -226,6 +227,7 @@ private fun UsersList(
             request = item.avatar,
             requestBuilder = { transformations(CircleCropTransformation()) },
             fadeIn = true,
+            previewPlaceholder = R.drawable.ic_baseline_person_24
           )
 
           Box(
@@ -268,12 +270,32 @@ private fun UsersList(
 
           Spacer(modifier = Modifier.width(padding))
 
-          Text(item.fullName)
+          Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceEvenly
+          ) {
+            Text(
+              item.fullName,
+              style = MaterialTheme.typography.subtitle1,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+            )
+
+            Text(
+              item.email,
+              style = MaterialTheme.typography.body2.copy(
+                fontSize = 12.sp,
+                color = MaterialTheme.typography.caption.color,
+              ),
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+            )
+          }
         }
 
         if (index < lastIndex) {
           Divider(
-            modifier = Modifier.padding(horizontal = padding),
+            modifier = Modifier.padding(horizontal = 8.dp),
             thickness = 0.7.dp,
           )
         }
@@ -281,3 +303,29 @@ private fun UsersList(
     }
   }
 }
+
+@Composable
+private fun UserRow(
+  item: UserItem,
+  modifier: Modifier = Modifier,
+) {
+
+}
+
+//@Preview(
+//  widthDp = 300,
+//)
+//@Composable
+//fun UserRowPreview() {
+//  UserRow(
+//    item = UserItem(
+//      User(
+//        id = "123",
+//        email = "hoc081098@gmail.com",
+//        firstName = "Hoc",
+//        lastName = "Petrus ".repeat(10),
+//        avatar = "test",
+//      )
+//    ),
+//  )
+//}
