@@ -225,7 +225,6 @@ private fun MainContent(
   )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun UsersList(
   isRefreshing: Boolean,
@@ -233,10 +232,43 @@ private fun UsersList(
   processIntent: IntentDispatcher<ViewIntent>,
   modifier: Modifier = Modifier
 ) {
+  val lastIndex = userItems.lastIndex
 
+  SwipeRefresh(
+    state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+    onRefresh = { processIntent(ViewIntent.Refresh) },
+  ) {
+    LazyColumn(
+      modifier = modifier.fillMaxSize(),
+    ) {
+      itemsIndexed(
+        userItems,
+        key = { _, item -> item.id },
+      ) { index, item ->
+
+        UserRow(
+          item = item,
+          modifier = Modifier
+            .fillParentMaxWidth(),
+        )
+
+        if (index < lastIndex) {
+          Divider(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            thickness = 0.7.dp,
+          )
+        }
+      }
+    }
+  }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun _Place(userItems: List<UserItem>) {
   LazyColumn {
     items(userItems) { item ->
-      var unread by  remember{ mutableStateOf(false) }
+      var unread by remember { mutableStateOf(false) }
       val dismissState = rememberDismissState(
         confirmStateChange = {
           if (it == DismissedToEnd) unread = !unread
@@ -302,41 +334,9 @@ private fun UsersList(
       )
     }
   }
-
-
-  return
-
-  val lastIndex = userItems.lastIndex
-
-  SwipeRefresh(
-    state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
-    onRefresh = { processIntent(ViewIntent.Refresh) },
-  ) {
-    LazyColumn(
-      modifier = modifier.fillMaxSize(),
-    ) {
-      itemsIndexed(
-        userItems,
-        key = { _, item -> item.id },
-      ) { index, item ->
-
-        UserRow(
-          item = item,
-          modifier = Modifier
-            .fillParentMaxWidth(),
-        )
-
-        if (index < lastIndex) {
-          Divider(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            thickness = 0.7.dp,
-          )
-        }
-      }
-    }
-  }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun UserRow(
   item: UserItem,
@@ -345,6 +345,11 @@ private fun UserRow(
   val imageSize = 72.dp
   val padding = 8.dp
   val itemHeight = imageSize + padding * 2
+
+  SwipeToDismiss(state = rememberDismissState(), background = { /*TODO*/ }) {
+
+  }
+
   Row(
     modifier = modifier
       .requiredHeight(itemHeight)
