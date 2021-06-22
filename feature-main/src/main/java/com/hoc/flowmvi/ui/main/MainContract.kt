@@ -1,13 +1,18 @@
 package com.hoc.flowmvi.ui.main
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import com.hoc.flowmvi.domain.entity.User
 
+@Stable
+@Immutable
 internal data class UserItem(
   val id: String,
   val email: String,
   val avatar: String,
   val firstName: String,
-  val lastName: String
+  val lastName: String,
+  val isDeleting: Boolean
 ) {
   val fullName get() = "$firstName $lastName"
 
@@ -16,7 +21,8 @@ internal data class UserItem(
     email = domain.email,
     avatar = domain.avatar,
     firstName = domain.firstName,
-    lastName = domain.lastName
+    lastName = domain.lastName,
+    isDeleting = false,
   )
 
   fun toDomain() = User(
@@ -93,10 +99,31 @@ internal sealed class PartialChange {
   }
 
   sealed class RemoveUser : PartialChange() {
+    data class Loading(val user: UserItem): RemoveUser()
     data class Success(val user: UserItem) : RemoveUser()
     data class Failure(val user: UserItem, val error: Throwable) : RemoveUser()
 
-    override fun reduce(vs: ViewState) = vs
+    override fun reduce(vs: ViewState)  = when(this) {
+      is Failure -> vs.copy(
+        userItems = vs.userItems.map {
+          if (user.id == it.id) {
+            it.copy(isDeleting = false)
+          } else {
+            it
+          }
+        }
+      )
+      is Loading -> vs.copy(
+        userItems = vs.userItems.map {
+          if (user.id == it.id) {
+            it.copy(isDeleting = true)
+          } else {
+            it
+          }
+        }
+      )
+      is Success -> vs
+    }
   }
 }
 
