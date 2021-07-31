@@ -93,7 +93,6 @@ internal fun UserRow(
     }
   }
 
-
   SwipeToDismiss(
     state = dismissState,
     background = {
@@ -109,7 +108,7 @@ internal fun UserRow(
         contentAlignment = Alignment.CenterEnd
       ) {
         Icon(
-          if(item.isDeleting) Icons.Default.Downloading else Icons.Default.Delete,
+          if (item.isDeleting) Icons.Default.Downloading else Icons.Default.Delete,
           contentDescription = "Delete",
           modifier = Modifier.scale(scale),
           tint = Color.White
@@ -196,7 +195,6 @@ internal fun UserRow(
     }
   }
 }
-
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

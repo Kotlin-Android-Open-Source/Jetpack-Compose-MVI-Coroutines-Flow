@@ -99,11 +99,11 @@ internal sealed class PartialChange {
   }
 
   sealed class RemoveUser : PartialChange() {
-    data class Loading(val user: UserItem): RemoveUser()
+    data class Loading(val user: UserItem) : RemoveUser()
     data class Success(val user: UserItem) : RemoveUser()
     data class Failure(val user: UserItem, val error: Throwable) : RemoveUser()
 
-    override fun reduce(vs: ViewState)  = when(this) {
+    override fun reduce(vs: ViewState) = when (this) {
       is Failure -> vs.copy(
         userItems = vs.userItems.map {
           if (user.id == it.id) {

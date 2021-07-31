@@ -49,9 +49,9 @@ import com.hoc.flowmvi.core.navigator.ProvideNavigator
 import com.hoc.flowmvi.core.unit
 import com.hoc.flowmvi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

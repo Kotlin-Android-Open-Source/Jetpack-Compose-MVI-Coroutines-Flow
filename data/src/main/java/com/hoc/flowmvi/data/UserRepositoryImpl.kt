@@ -9,10 +9,6 @@ import com.hoc.flowmvi.data.remote.UserBody
 import com.hoc.flowmvi.data.remote.UserResponse
 import com.hoc.flowmvi.domain.entity.User
 import com.hoc.flowmvi.domain.repository.UserRepository
-import java.io.IOException
-import javax.inject.Inject
-import kotlin.time.ExperimentalTime
-import kotlin.time.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,6 +17,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.withContext
+import java.io.IOException
+import javax.inject.Inject
+import kotlin.time.ExperimentalTime
+import kotlin.time.milliseconds
 
 @ExperimentalTime
 internal class UserRepositoryImpl @Inject constructor(
