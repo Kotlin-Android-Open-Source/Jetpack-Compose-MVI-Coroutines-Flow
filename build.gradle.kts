@@ -9,7 +9,7 @@ buildscript {
     gradlePluginPortal()
   }
   dependencies {
-    classpath("com.android.tools.build:gradle:7.1.0-alpha12")
+    classpath("com.android.tools.build:gradle:7.1.0-alpha13")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     classpath("com.diffplug.spotless:spotless-plugin-gradle:5.16.0")
     classpath("com.google.dagger:hilt-android-gradle-plugin:${deps.daggerHilt.version}")
