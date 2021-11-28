@@ -48,10 +48,12 @@ dependencies {
   implementation(domain)
   implementation(data)
   implementation(core)
+  implementation(coreUi)
   implementation(featureMain)
   implementation(featureAdd)
 
   implementation(deps.coroutines.android)
+  implementation(deps.timber)
 
   implementation(deps.daggerHilt.android)
   kapt(deps.daggerHilt.compiler)

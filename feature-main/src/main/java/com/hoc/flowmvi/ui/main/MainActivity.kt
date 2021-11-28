@@ -82,14 +82,14 @@ private fun MainScreen() {
 
   val scaffoldState = rememberScaffoldState()
 
-  LaunchedEffect(vm, intentChannel) {
+  LaunchedEffect(vm) {
+    vm.processIntent(ViewIntent.Initial)
+
     intentChannel
       .consumeAsFlow()
       .onEach(vm::processIntent)
       .collect()
   }
-
-  LaunchedEffect(vm) { vm.processIntent(ViewIntent.Initial) }
 
   LaunchedEffect(singleEvent, scaffoldState) {
     val snackbarHostState = scaffoldState.snackbarHostState
