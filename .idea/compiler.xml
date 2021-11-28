@@ -11,6 +11,7 @@
       <module name="Jetpack_Compose_MVI_Coroutines_Flow.feature-main" target="13" />
       <module name="Jetpack_Compose_MVI_Coroutines_Flow.mvi-base" target="13" />
       <module name="Jetpack_Compose_MVI_Coroutines_Flow.mvi-testing" target="13" />
+      <module name="Jetpack_Compose_MVI_Coroutines_Flow.test-utils" target="11" />
       <module name="Jetpack_Compose_MVI_Coroutines_Flow.ui-theme" target="13" />
     </bytecodeTargetLevel>
   </component>
