@@ -7,13 +7,13 @@ import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
 
 const val ktlintVersion = "0.40.0"
-const val kotlinVersion = "1.4.32"
+const val kotlinVersion = "1.5.31"
 
 object appConfig {
   const val applicationId = "com.hoc.flowmvi"
 
-  const val compileSdkVersion = 30
-  const val buildToolsVersion = "30.0.2"
+  const val compileSdkVersion = 31
+  const val buildToolsVersion = "31.0.0"
 
   const val minSdkVersion = 21
   const val targetSdkVersion = 30
