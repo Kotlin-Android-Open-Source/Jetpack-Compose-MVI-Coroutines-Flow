@@ -30,6 +30,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,8 +46,11 @@ import com.hoc.flowmvi.core_ui.navigator.ProvideNavigator
 import com.hoc.flowmvi.core_ui.rememberFlowWithLifecycle
 import com.hoc.flowmvi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -74,10 +78,18 @@ private fun MainScreen() {
   val vm = viewModel<MainVM>()
   val singleEvent = rememberFlowWithLifecycle(vm.singleEvent)
   val state by vm.viewState.collectAsState()
-
-  LaunchedEffect(vm) { vm.processIntent(ViewIntent.Initial) }
+  val intentChannel = remember { Channel<ViewIntent>(Channel.UNLIMITED) }
 
   val scaffoldState = rememberScaffoldState()
+
+  LaunchedEffect(vm, intentChannel) {
+    intentChannel
+      .consumeAsFlow()
+      .onEach(vm::processIntent)
+      .collect()
+  }
+
+  LaunchedEffect(vm) { vm.processIntent(ViewIntent.Initial) }
 
   LaunchedEffect(singleEvent, scaffoldState) {
     val snackbarHostState = scaffoldState.snackbarHostState
@@ -132,11 +144,7 @@ private fun MainScreen() {
 
     MainContent(
       state = state,
-      processIntent = { intent ->
-        coroutineScope.launch {
-          vm.processIntent(intent)
-        }
-      },
+      processIntent = intentChannel::trySend,
     )
   }
 }

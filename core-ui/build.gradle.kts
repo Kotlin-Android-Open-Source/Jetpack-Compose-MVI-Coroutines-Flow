@@ -25,12 +25,12 @@ android {
     }
   }
 
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+  buildFeatures {
+    compose = true
   }
-  kotlinOptions { jvmTarget = JavaVersion.VERSION_1_8.toString() }
-
+  composeOptions {
+    kotlinCompilerExtensionVersion = deps.compose.version
+  }
   testOptions {
     unitTests.isIncludeAndroidResources = true
     unitTests.isReturnDefaultValues = true
