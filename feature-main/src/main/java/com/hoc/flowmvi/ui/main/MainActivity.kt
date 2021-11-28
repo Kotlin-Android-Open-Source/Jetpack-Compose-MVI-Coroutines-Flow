@@ -45,6 +45,7 @@ import com.hoc.flowmvi.core_ui.navigator.Navigator
 import com.hoc.flowmvi.core_ui.navigator.ProvideNavigator
 import com.hoc.flowmvi.core_ui.rememberFlowWithLifecycle
 import com.hoc.flowmvi.ui.theme.AppTheme
+import com.hoc081098.flowext.startWith
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
@@ -83,10 +84,9 @@ private fun MainScreen() {
   val scaffoldState = rememberScaffoldState()
 
   LaunchedEffect(vm) {
-    vm.processIntent(ViewIntent.Initial)
-
     intentChannel
       .consumeAsFlow()
+      .startWith(ViewIntent.Initial)
       .onEach(vm::processIntent)
       .collect()
   }
