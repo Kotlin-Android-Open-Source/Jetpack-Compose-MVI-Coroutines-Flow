@@ -48,8 +48,7 @@ internal abstract class DataModule {
   abstract fun userRepository(impl: UserRepositoryImpl): UserRepository
 
   @Binds
-  abstract fun userResponseToUserMapper(impl: UserResponseToUserDomainMapper):
-    Mapper<UserResponse, Validated<Nel<UserValidationError>, User>>
+  abstract fun userResponseToUserMapper(impl: UserResponseToUserDomainMapper): UserResponseToUserDomainMapperType
 
   @Binds
   abstract fun userDomainToUserBodyMapper(impl: UserDomainToUserBodyMapper): Mapper<User, UserBody>
