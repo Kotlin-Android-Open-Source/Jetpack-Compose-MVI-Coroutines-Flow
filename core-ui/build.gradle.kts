@@ -41,6 +41,8 @@ dependencies {
   implementation(deps.compose.runtime)
   implementation(deps.compose.ui)
   implementation(deps.lifecycle.runtimeKtx)
+  implementation(deps.lifecycle.runtimeKtx)
+  implementation(deps.androidx.material)
 
   addUnitTest()
 }
