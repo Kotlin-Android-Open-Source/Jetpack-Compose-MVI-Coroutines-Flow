@@ -7,17 +7,20 @@ buildscript {
     mavenCentral()
     maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
     gradlePluginPortal()
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
   }
   dependencies {
     classpath("com.android.tools.build:gradle:7.0.3")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     classpath("com.diffplug.spotless:spotless-plugin-gradle:6.0.0")
     classpath("com.google.dagger:hilt-android-gradle-plugin:${deps.daggerHilt.version}")
+    classpath("com.github.ben-manes:gradle-versions-plugin:0.39.0")
   }
 }
 
 subprojects {
   apply(plugin = "com.diffplug.spotless")
+  apply(plugin = "com.github.ben-manes.versions")
 
   configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     kotlin {
@@ -27,7 +30,9 @@ subprojects {
         // TODO this should all come from editorconfig https://github.com/diffplug/spotless/issues/142
         mapOf(
           "indent_size" to "2",
-          "kotlin_imports_layout" to "ascii"
+          "ij_kotlin_imports_layout" to "*",
+          "end_of_line" to "lf",
+          "charset" to "utf-8"
         )
       )
 
@@ -50,7 +55,9 @@ subprojects {
       ktlint(ktlintVersion).userData(
         mapOf(
           "indent_size" to "2",
-          "kotlin_imports_layout" to "ascii"
+          "ij_kotlin_imports_layout" to "*",
+          "end_of_line" to "lf",
+          "charset" to "utf-8"
         )
       )
 
@@ -68,7 +75,6 @@ allprojects {
       sourceCompatibility = JavaVersion.VERSION_11.toString()
       targetCompatibility = JavaVersion.VERSION_11.toString()
 
-      useIR = true
       // Opt-in to experimental compose APIs
       freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
       // Enable experimental coroutines APIs, including collectAsState()
@@ -82,6 +88,7 @@ allprojects {
     mavenCentral()
     maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
     maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
+    maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/")
   }
 }
 

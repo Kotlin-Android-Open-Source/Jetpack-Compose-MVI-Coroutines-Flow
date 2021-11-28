@@ -27,15 +27,15 @@ object deps {
   }
 
   object androidx {
-    const val appCompat = "androidx.appcompat:appcompat:1.3.0-alpha02"
-    const val coreKtx = "androidx.core:core-ktx:1.5.0-alpha02"
-    const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.1"
-    const val material = "com.google.android.material:material:1.3.0-alpha02"
-    const val activityCompose = "androidx.activity:activity-compose:1.3.0-alpha08"
+    const val appCompat = "androidx.appcompat:appcompat:1.4.0"
+    const val coreKtx = "androidx.core:core-ktx:1.7.0"
+    const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.1.2"
+    const val material = "com.google.android.material:material:1.4.0"
+    const val activityCompose = "androidx.activity:activity-compose:1.4.0"
   }
 
   object compose {
-    const val version = "1.0.0-beta07"
+    const val version = "1.1.0-beta03"
 
     const val layout = "androidx.compose.foundation:foundation-layout:$version"
     const val foundation = "androidx.compose.foundation:foundation:$version"
@@ -47,7 +47,7 @@ object deps {
   }
 
   object lifecycle {
-    private const val version = "2.3.0-beta01"
+    private const val version = "2.4.0"
 
     const val viewModelKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:$version" // viewModelScope
     const val runtimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$version" // lifecycleScope
@@ -63,17 +63,23 @@ object deps {
   }
 
   object jetbrains {
-    private const val version = "1.4.3"
+    private const val version = "1.5.2"
 
     const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
     const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
   }
 
   object daggerHilt {
-    const val version = "2.36"
+    const val version = "2.40.2"
     const val android = "com.google.dagger:hilt-android:$version"
     const val core = "com.google.dagger:hilt-core:$version"
     const val compiler = "com.google.dagger:hilt-compiler:$version"
+  }
+
+  object dagger {
+    const val version = "2.40.2"
+    const val core = "com.google.dagger:dagger:$version"
+    const val compiler = "com.google.dagger:dagger-compiler:$version"
   }
 
   object accompanist {
