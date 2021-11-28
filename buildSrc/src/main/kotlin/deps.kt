@@ -1,12 +1,13 @@
 @file:Suppress("unused", "ClassName", "SpellCheckingInspection")
 
+import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.kotlin.dsl.kotlin
 import org.gradle.kotlin.dsl.project
 import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
 
-const val ktlintVersion = "0.40.0"
+const val ktlintVersion = "0.43.0"
 const val kotlinVersion = "1.5.31"
 
 object appConfig {
@@ -59,14 +60,20 @@ object deps {
     const val retrofit = "com.squareup.retrofit2:retrofit:2.9.0"
     const val converterMoshi = "com.squareup.retrofit2:converter-moshi:2.9.0"
     const val loggingInterceptor = "com.squareup.okhttp3:logging-interceptor:4.8.1"
-    const val moshiKotlin = "com.squareup.moshi:moshi-kotlin:1.10.0"
+    const val moshiKotlin = "com.squareup.moshi:moshi-kotlin:1.12.0"
   }
 
-  object jetbrains {
+  object coroutines {
     private const val version = "1.5.2"
 
-    const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
-    const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
+    const val core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
+    const val android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
+    const val test = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version"
+  }
+
+  object arrow {
+    private const val version = "1.0.1"
+    const val core = "io.arrow-kt:arrow-core:$version"
   }
 
   object daggerHilt {
@@ -83,15 +90,23 @@ object deps {
   }
 
   object accompanist {
-    private const val version = "0.10.0"
-    const val coil = "com.google.accompanist:accompanist-coil:$version"
-    const val swiperefresh = "com.google.accompanist:accompanist-swiperefresh:$version"
+    const val swiperefresh = "com.google.accompanist:accompanist-swiperefresh:0.21.3-beta"
   }
 
+  object coil {
+    const val compose = "io.coil-kt:coil-compose:1.4.0"
+  }
+  const val viewBindingDelegate = "com.github.hoc081098:ViewBindingDelegate:1.2.0"
+  const val flowExt = "io.github.hoc081098:FlowExt:0.1.0"
+  const val timber = "com.jakewharton.timber:timber:5.0.1"
+
   object test {
-    const val junit = "junit:junit:4.13"
+    const val junit = "junit:junit:4.13.2"
     const val androidxJunit = "androidx.test.ext:junit:1.1.2"
     const val androidXSspresso = "androidx.test.espresso:espresso-core:3.3.0"
+
+    const val mockk = "io.mockk:mockk:1.12.1"
+    const val kotlinJUnit = "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
   }
 }
 
@@ -108,9 +123,14 @@ inline val PDsS.daggerHiltAndroid: PDS get() = id("dagger.hilt.android.plugin")
 inline val DependencyHandler.domain get() = project(":domain")
 inline val DependencyHandler.core get() = project(":core")
 inline val DependencyHandler.uiTheme get() = project(":ui-theme")
+inline val DependencyHandler.coreUi get() = project(":core-ui")
 inline val DependencyHandler.data get() = project(":data")
 inline val DependencyHandler.featureMain get() = project(":feature-main")
 inline val DependencyHandler.featureAdd get() = project(":feature-add")
+inline val DependencyHandler.featureSearch get() = project(":feature-search")
+inline val DependencyHandler.mviBase get() = project(":mvi-base")
+inline val DependencyHandler.mviTesting get() = project(":mvi-testing")
+inline val DependencyHandler.testUtils get() = project(":test-utils")
 
 fun DependencyHandler.implementationCompose() {
   arrayOf(
@@ -127,3 +147,17 @@ fun DependencyHandler.implementationCompose() {
   add("debugImplementation", deps.compose.tooling)
   add("debugImplementation", deps.kotlin.reflect)
 }
+
+fun DependencyHandler.addUnitTest(testImplementation: Boolean = true) {
+  val configName = if (testImplementation) "testImplementation" else "implementation"
+
+  add(configName, deps.test.junit)
+  add(configName, deps.test.mockk)
+  add(configName, deps.test.kotlinJUnit)
+  add(configName, deps.coroutines.test)
+}
+
+val Project.isCiBuild: Boolean
+  get() = providers.environmentVariable("CI")
+    .forUseAtConfigurationTime()
+    .orNull == "true"

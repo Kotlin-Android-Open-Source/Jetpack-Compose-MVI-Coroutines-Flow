@@ -1,15 +1,22 @@
 package com.hoc.flowmvi.data
 
+import arrow.core.Nel
+import arrow.core.Validated
 import com.hoc.flowmvi.core.Mapper
 import com.hoc.flowmvi.data.mapper.UserDomainToUserBodyMapper
-import com.hoc.flowmvi.data.mapper.UserDomainToUserResponseMapper
+import com.hoc.flowmvi.data.mapper.UserErrorMapper
 import com.hoc.flowmvi.data.mapper.UserResponseToUserDomainMapper
+import com.hoc.flowmvi.data.remote.ErrorResponse
 import com.hoc.flowmvi.data.remote.UserApiService
 import com.hoc.flowmvi.data.remote.UserBody
 import com.hoc.flowmvi.data.remote.UserResponse
-import com.hoc.flowmvi.domain.entity.User
+import com.hoc.flowmvi.domain.model.User
+import com.hoc.flowmvi.domain.model.UserError
+import com.hoc.flowmvi.domain.model.UserValidationError
 import com.hoc.flowmvi.domain.repository.UserRepository
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Binds
 import dagger.Module
@@ -26,6 +33,8 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlin.time.ExperimentalTime
 
+internal typealias UserResponseToUserDomainMapperType = Mapper<UserResponse, Validated<@JvmSuppressWildcards Nel<@JvmSuppressWildcards UserValidationError>, @JvmSuppressWildcards User>>
+
 @Retention(AnnotationRetention.BINARY)
 @Qualifier
 private annotation class BaseUrl
@@ -39,13 +48,13 @@ internal abstract class DataModule {
   abstract fun userRepository(impl: UserRepositoryImpl): UserRepository
 
   @Binds
-  abstract fun userResponseToUserMapper(impl: UserResponseToUserDomainMapper): Mapper<UserResponse, User>
+  abstract fun userResponseToUserMapper(impl: UserResponseToUserDomainMapper): UserResponseToUserDomainMapperType
 
   @Binds
   abstract fun userDomainToUserBodyMapper(impl: UserDomainToUserBodyMapper): Mapper<User, UserBody>
 
   @Binds
-  abstract fun userDomainToUserResponseMapper(impl: UserDomainToUserResponseMapper): Mapper<User, UserResponse>
+  abstract fun userErrorMapper(impl: UserErrorMapper): Mapper<Throwable, UserError>
 
   internal companion object {
     @Provides
@@ -76,6 +85,11 @@ internal abstract class DataModule {
     @Provides
     @BaseUrl
     fun baseUrl(): String = "https://mvi-coroutines-flow-server.herokuapp.com/"
+
+    @OptIn(ExperimentalStdlibApi::class)
+    @Provides
+    @Singleton
+    fun errorResponseJsonAdapter(moshi: Moshi): JsonAdapter<ErrorResponse> = moshi.adapter()
   }
 }
 

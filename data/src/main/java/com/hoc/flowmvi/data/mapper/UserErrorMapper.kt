@@ -1,0 +1,56 @@
+package com.hoc.flowmvi.data.mapper
+
+import arrow.core.nonFatalOrThrow
+import com.hoc.flowmvi.core.Mapper
+import com.hoc.flowmvi.data.remote.ErrorResponse
+import com.hoc.flowmvi.domain.model.UserError
+import com.squareup.moshi.JsonAdapter
+import okhttp3.ResponseBody
+import retrofit2.HttpException
+import java.io.IOException
+import java.net.SocketException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import javax.inject.Inject
+
+internal class UserErrorMapper @Inject constructor(private val errorResponseJsonAdapter: JsonAdapter<ErrorResponse>) :
+  Mapper<Throwable, UserError> {
+  override fun invoke(param: Throwable): UserError {
+    val throwable = param.nonFatalOrThrow()
+
+    return runCatching {
+      when (throwable) {
+        is UserError -> throwable
+        is IOException -> when (throwable) {
+          is UnknownHostException -> UserError.NetworkError
+          is SocketTimeoutException -> UserError.NetworkError
+          is SocketException -> UserError.NetworkError
+          else -> UserError.NetworkError
+        }
+        is HttpException ->
+          throwable.response()!!
+            .takeUnless { it.isSuccessful }!!
+            .errorBody()!!
+            .use(ResponseBody::string)
+            .let { mapResponseError(it) }
+        else -> UserError.Unexpected
+      }
+    }.getOrElse {
+      it.nonFatalOrThrow()
+      UserError.Unexpected
+    }
+  }
+
+  @Throws(Throwable::class)
+  private fun mapResponseError(json: String): UserError {
+    val errorResponse = errorResponseJsonAdapter.fromJson(json)!!
+
+    return when (errorResponse.error) {
+      "internal-error" -> UserError.ServerError
+      "invalid-id" -> UserError.InvalidId(id = errorResponse.data as String)
+      "user-not-found" -> UserError.UserNotFound(id = errorResponse.data as String)
+      "validation-failed" -> UserError.ValidationFailed(errors = emptySet())
+      else -> UserError.Unexpected
+    }
+  }
+}

@@ -10,19 +10,19 @@ hilt {
 }
 
 android {
-  compileSdkVersion(appConfig.compileSdkVersion)
-  buildToolsVersion(appConfig.buildToolsVersion)
+  compileSdk = appConfig.compileSdkVersion
+  buildToolsVersion = appConfig.buildToolsVersion
 
   defaultConfig {
-    minSdkVersion(appConfig.minSdkVersion)
-    targetSdkVersion(appConfig.targetSdkVersion)
+    minSdk = appConfig.minSdkVersion
+    targetSdk = appConfig.targetSdkVersion
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
   buildTypes {
-    getByName("release") {
-      isMinifyEnabled = true
+    release {
+      isMinifyEnabled = false
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"
@@ -36,6 +36,7 @@ android {
 dependencies {
   implementation(domain)
   implementation(core)
+  implementation(coreUi)
 
   implementation(deps.androidx.appCompat)
   implementation(deps.androidx.coreKtx)
@@ -46,7 +47,7 @@ dependencies {
   implementation(deps.androidx.constraintLayout)
   implementation(deps.androidx.material)
 
-  implementation(deps.jetbrains.coroutinesCore)
+  implementation(deps.coroutines.core)
 
   implementation(deps.daggerHilt.android)
   kapt(deps.daggerHilt.compiler)

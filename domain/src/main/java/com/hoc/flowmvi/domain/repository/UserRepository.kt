@@ -1,14 +1,18 @@
 package com.hoc.flowmvi.domain.repository
 
-import com.hoc.flowmvi.domain.entity.User
+import arrow.core.Either
+import com.hoc.flowmvi.domain.model.User
+import com.hoc.flowmvi.domain.model.UserError
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-  fun getUsers(): Flow<List<User>>
+  fun getUsers(): Flow<Either<UserError, List<User>>>
 
-  suspend fun refresh()
+  suspend fun refresh(): Either<UserError, Unit>
 
-  suspend fun remove(user: User)
+  suspend fun remove(user: User): Either<UserError, Unit>
 
-  suspend fun add(user: User)
+  suspend fun add(user: User): Either<UserError, Unit>
+
+  suspend fun search(query: String): Either<UserError, List<User>>
 }

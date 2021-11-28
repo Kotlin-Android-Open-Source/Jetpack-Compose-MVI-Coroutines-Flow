@@ -1,8 +1,10 @@
 package com.hoc.flowmvi.domain.usecase
 
+import arrow.core.Either
+import com.hoc.flowmvi.domain.model.UserError
 import com.hoc.flowmvi.domain.repository.UserRepository
 import javax.inject.Inject
 
 class RefreshGetUsersUseCase @Inject constructor(private val userRepository: UserRepository) {
-  suspend operator fun invoke() = userRepository.refresh()
+  suspend operator fun invoke(): Either<UserError, Unit> = userRepository.refresh()
 }
