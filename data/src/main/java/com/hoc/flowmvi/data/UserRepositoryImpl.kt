@@ -38,7 +38,7 @@ internal class UserRepositoryImpl @Inject constructor(
   private val dispatchers: CoroutineDispatchers,
   private val responseToDomain: Mapper<
     @JvmSuppressWildcards UserResponse,
-    @JvmSuppressWildcards ValidatedNel<UserValidationError, User>>,
+    @JvmSuppressWildcards ValidatedNel<@JvmSuppressWildcards UserValidationError, @JvmSuppressWildcards User>>,
   private val domainToBody: Mapper<User, UserBody>,
   private val errorMapper: Mapper<Throwable, UserError>,
 ) : UserRepository {
