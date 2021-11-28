@@ -51,7 +51,7 @@ dependencies {
   implementation(featureMain)
   implementation(featureAdd)
 
-  implementation(deps.jetbrains.coroutinesAndroid)
+  implementation(deps.coroutines.android)
 
   implementation(deps.daggerHilt.android)
   kapt(deps.daggerHilt.compiler)

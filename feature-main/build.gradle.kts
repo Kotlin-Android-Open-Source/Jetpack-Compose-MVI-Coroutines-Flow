@@ -21,8 +21,8 @@ android {
   }
 
   buildTypes {
-    getByName("release") {
-      isMinifyEnabled = true
+    release {
+      isMinifyEnabled = false
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"
@@ -36,11 +36,19 @@ android {
   composeOptions {
     kotlinCompilerExtensionVersion = deps.compose.version
   }
+  testOptions {
+    unitTests {
+      isReturnDefaultValues = true
+      isIncludeAndroidResources = true
+    }
+  }
 }
 
 dependencies {
   implementation(domain)
   implementation(core)
+  implementation(coreUi)
+  implementation(mviBase)
   implementation(uiTheme)
 
   implementationCompose()
@@ -54,11 +62,14 @@ dependencies {
   implementation(deps.androidx.constraintLayout)
   implementation(deps.androidx.material)
 
-  implementation(deps.jetbrains.coroutinesCore)
+  implementation(deps.coroutines.core)
+  implementation(deps.arrow.core)
+  implementation(deps.timber)
+  implementation(deps.flowExt)
 
   implementation(deps.daggerHilt.android)
   kapt(deps.daggerHilt.compiler)
 
-  implementation(deps.accompanist.coil)
+  implementation(deps.coil.compose)
   implementation(deps.accompanist.swiperefresh)
 }

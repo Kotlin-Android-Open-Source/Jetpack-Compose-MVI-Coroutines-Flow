@@ -1,6 +1,5 @@
 package com.hoc.flowmvi.ui.main
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -53,13 +52,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import arrow.core.valueOr
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.ImagePainter
+import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
-import com.google.accompanist.coil.rememberCoilPainter
-import com.google.accompanist.imageloading.ImageLoadState
-import com.hoc.flowmvi.domain.entity.User
+import com.hoc.flowmvi.core.unit
+import com.hoc.flowmvi.domain.model.User
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
+@OptIn(
+  ExperimentalMaterialApi::class,
+  ExperimentalCoilApi::class,
+)
 internal fun UserRow(
   item: UserItem,
   modifier: Modifier = Modifier,
@@ -71,7 +76,6 @@ internal fun UserRow(
 
   val dismissState = rememberDismissState(
     confirmStateChange = { dismissValue ->
-      Log.d("UserRow", "confirmStateChange ${item.id} ${item.isDeleting} $dismissValue")
       (dismissValue == DismissValue.DismissedToStart).also {
         if (it) {
           onDelete(item)
@@ -84,8 +88,6 @@ internal fun UserRow(
     key1 = item.isDeleting,
     key2 = item.id,
   ) {
-    Log.d("UserRow", "LaunchedEffect ${item.fullName} ${item.isDeleting}")
-
     if (item.isDeleting) {
       dismissState.snapTo(DismissValue.DismissedToStart)
     } else {
@@ -124,10 +126,12 @@ internal fun UserRow(
         .background(Color.White)
         .padding(all = padding),
     ) {
-      val painter = rememberCoilPainter(
-        request = item.avatar,
-        requestBuilder = { transformations(CircleCropTransformation()) },
-        fadeIn = true,
+      val painter = rememberImagePainter(
+        data = item.avatar,
+        builder = {
+          crossfade(true)
+          transformations(CircleCropTransformation())
+        },
       )
 
       Box(
@@ -142,11 +146,11 @@ internal fun UserRow(
           modifier = Modifier.fillMaxSize(),
         )
 
-        when (painter.loadState) {
-          ImageLoadState.Empty -> Unit
-          is ImageLoadState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-          is ImageLoadState.Success -> Unit
-          is ImageLoadState.Error -> {
+        when (painter.state) {
+          ImagePainter.State.Empty -> Unit
+          is ImagePainter.State.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+          is ImagePainter.State.Success -> Unit
+          is ImagePainter.State.Error -> {
             Column(
               modifier = Modifier.fillMaxSize(),
               verticalArrangement = Arrangement.Center,
@@ -163,7 +167,7 @@ internal fun UserRow(
               Text("Error", style = MaterialTheme.typography.caption)
             }
           }
-        }
+        }.unit
       }
 
       Spacer(modifier = Modifier.width(padding))
@@ -276,13 +280,13 @@ private fun _Place(userItems: List<UserItem>) {
 fun UserRowPreview() {
   UserRow(
     item = UserItem(
-      User(
+      User.create(
         id = "123",
         email = "hoc081098@gmail.com",
         firstName = "Hoc",
         lastName = "Petrus ".repeat(10),
         avatar = "test",
-      )
+      ).valueOr { error("") }
     ),
     onDelete = {}
   )

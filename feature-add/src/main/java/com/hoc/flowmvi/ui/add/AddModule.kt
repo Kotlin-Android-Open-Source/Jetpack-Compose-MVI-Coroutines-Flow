@@ -1,6 +1,6 @@
 package com.hoc.flowmvi.ui.add
 
-import com.hoc.flowmvi.core.navigator.IntentProviders
+import com.hoc.flowmvi.core_ui.navigator.IntentProviders
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

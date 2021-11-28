@@ -14,10 +14,14 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core-ui" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/domain" />
             <option value="$PROJECT_DIR$/feature-add" />
             <option value="$PROJECT_DIR$/feature-main" />
+            <option value="$PROJECT_DIR$/mvi/mvi-base" />
+            <option value="$PROJECT_DIR$/mvi/mvi-testing" />
+            <option value="$PROJECT_DIR$/test-utils" />
             <option value="$PROJECT_DIR$/ui-theme" />
           </set>
         </option>

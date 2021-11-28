@@ -1,7 +1,6 @@
 package com.hoc.flowmvi.ui.main
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -31,8 +30,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,14 +44,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.hoc.flowmvi.core.IntentDispatcher
-import com.hoc.flowmvi.core.navigator.Navigator
-import com.hoc.flowmvi.core.navigator.ProvideNavigator
 import com.hoc.flowmvi.core.unit
+import com.hoc.flowmvi.core_ui.navigator.Navigator
+import com.hoc.flowmvi.core_ui.navigator.ProvideNavigator
+import com.hoc.flowmvi.core_ui.rememberFlowWithLifecycle
 import com.hoc.flowmvi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -75,32 +76,36 @@ class MainActivity : AppCompatActivity() {
 
 @Composable
 private fun MainScreen() {
-  val (state, singleEvent, processIntent) = viewModel<MainVM>()
+  val vm = viewModel<MainVM>()
+  val singleEvent = rememberFlowWithLifecycle(vm.singleEvent)
+  val state by vm.viewState.collectAsState()
 
-  DisposableEffect("Initial") {
-    // dispatch initial intent
-    processIntent(ViewIntent.Initial)
-    onDispose { }
-  }
+  LaunchedEffect(vm) { vm.processIntent(ViewIntent.Initial) }
 
   val scaffoldState = rememberScaffoldState()
-  val snackbarHostState = scaffoldState.snackbarHostState
 
-  LaunchedEffect("SingleEvent") {
-    // observe single event
-    singleEvent
-      .onEach { event ->
-        Log.d("MainActivity", "handleSingleEvent $event")
+  LaunchedEffect(singleEvent, scaffoldState) {
+    val snackbarHostState = scaffoldState.snackbarHostState
 
-        when (event) {
-          SingleEvent.Refresh.Success -> snackbarHostState.showSnackbar("Refresh success")
-          is SingleEvent.Refresh.Failure -> snackbarHostState.showSnackbar("Refresh failure")
-          is SingleEvent.GetUsersError -> snackbarHostState.showSnackbar("Get user failure")
-          is SingleEvent.RemoveUser.Success -> snackbarHostState.showSnackbar("Removed '${event.user.fullName}'")
-          is SingleEvent.RemoveUser.Failure -> snackbarHostState.showSnackbar("Error when removing '${event.user.fullName}'")
-        }.unit
-      }
-      .collect()
+    singleEvent.collectLatest { event ->
+      when (event) {
+        SingleEvent.Refresh.Success -> {
+          snackbarHostState.showSnackbar("Refresh success")
+        }
+        is SingleEvent.Refresh.Failure -> {
+          snackbarHostState.showSnackbar("Refresh failure")
+        }
+        is SingleEvent.GetUsersError -> {
+          snackbarHostState.showSnackbar("Get user failure")
+        }
+        is SingleEvent.RemoveUser.Success -> {
+          snackbarHostState.showSnackbar("Removed '${event.user.fullName}'")
+        }
+        is SingleEvent.RemoveUser.Failure -> {
+          snackbarHostState.showSnackbar("Error when removing '${event.user.fullName}'")
+        }
+      }.unit
+    }
   }
 
   Scaffold(
@@ -128,9 +133,15 @@ private fun MainScreen() {
     },
     scaffoldState = scaffoldState,
   ) {
+    val coroutineScope = rememberCoroutineScope()
+
     MainContent(
       state = state,
-      processIntent = processIntent,
+      processIntent = { intent ->
+        coroutineScope.launch {
+          vm.processIntent(intent)
+        }
+      },
     )
   }
 }
@@ -138,7 +149,7 @@ private fun MainScreen() {
 @Composable
 private fun MainContent(
   state: ViewState,
-  processIntent: IntentDispatcher<ViewIntent>,
+  processIntent: (ViewIntent) -> Unit,
   modifier: Modifier = Modifier
 ) {
   if (state.error != null) {
@@ -192,10 +203,9 @@ private fun MainContent(
 private fun UsersList(
   isRefreshing: Boolean,
   userItems: List<UserItem>,
-  processIntent: IntentDispatcher<ViewIntent>,
+  processIntent: (ViewIntent) -> Unit,
   modifier: Modifier = Modifier
 ) {
-  Log.d("UserRow", userItems.filter { it.isDeleting }.size.toString())
   val lastIndex = userItems.lastIndex
 
   SwipeRefresh(

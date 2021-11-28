@@ -1,12 +1,13 @@
 package com.hoc.flowmvi.ui.main
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
-import com.hoc.flowmvi.domain.entity.User
+import arrow.core.Either
+import com.hoc.flowmvi.domain.model.User
+import com.hoc.flowmvi.domain.model.UserError
+import com.hoc.flowmvi.mvi_base.MviIntent
+import com.hoc.flowmvi.mvi_base.MviSingleEvent
+import com.hoc.flowmvi.mvi_base.MviViewState
 
-@Stable
-@Immutable
-internal data class UserItem(
+data class UserItem(
   val id: String,
   val email: String,
   val avatar: String,
@@ -18,35 +19,35 @@ internal data class UserItem(
 
   constructor(domain: User) : this(
     id = domain.id,
-    email = domain.email,
+    email = domain.email.value,
     avatar = domain.avatar,
-    firstName = domain.firstName,
-    lastName = domain.lastName,
+    firstName = domain.firstName.value,
+    lastName = domain.lastName.value,
     isDeleting = false,
   )
 
-  fun toDomain() = User(
+  fun toDomain(): Either<UserError.ValidationFailed, User> = User.create(
     id = id,
     lastName = lastName,
     firstName = firstName,
     avatar = avatar,
     email = email
-  )
+  ).toEither().mapLeft { UserError.ValidationFailed(it.toSet()) }
 }
 
-internal sealed class ViewIntent {
-  object Initial : ViewIntent()
-  object Refresh : ViewIntent()
-  object Retry : ViewIntent()
-  data class RemoveUser(val user: UserItem) : ViewIntent()
+sealed interface ViewIntent : MviIntent {
+  object Initial : ViewIntent
+  object Refresh : ViewIntent
+  object Retry : ViewIntent
+  data class RemoveUser(val user: UserItem) : ViewIntent
 }
 
-internal data class ViewState(
+data class ViewState(
   val userItems: List<UserItem>,
   val isLoading: Boolean,
-  val error: Throwable?,
+  val error: UserError?,
   val isRefreshing: Boolean
-) {
+) : MviViewState {
   companion object {
     fun initial() = ViewState(
       userItems = emptyList(),
@@ -57,10 +58,10 @@ internal data class ViewState(
   }
 }
 
-internal sealed class PartialChange {
-  abstract fun reduce(vs: ViewState): ViewState
+internal sealed interface PartialChange {
+  fun reduce(vs: ViewState): ViewState
 
-  sealed class GetUser : PartialChange() {
+  sealed class GetUser : PartialChange {
     override fun reduce(vs: ViewState): ViewState {
       return when (this) {
         Loading -> vs.copy(
@@ -81,10 +82,10 @@ internal sealed class PartialChange {
 
     object Loading : GetUser()
     data class Data(val users: List<UserItem>) : GetUser()
-    data class Error(val error: Throwable) : GetUser()
+    data class Error(val error: UserError) : GetUser()
   }
 
-  sealed class Refresh : PartialChange() {
+  sealed class Refresh : PartialChange {
     override fun reduce(vs: ViewState): ViewState {
       return when (this) {
         is Success -> vs.copy(isRefreshing = false)
@@ -95,10 +96,10 @@ internal sealed class PartialChange {
 
     object Loading : Refresh()
     object Success : Refresh()
-    data class Failure(val error: Throwable) : Refresh()
+    data class Failure(val error: UserError) : Refresh()
   }
 
-  sealed class RemoveUser : PartialChange() {
+  sealed class RemoveUser : PartialChange {
     data class Loading(val user: UserItem) : RemoveUser()
     data class Success(val user: UserItem) : RemoveUser()
     data class Failure(val user: UserItem, val error: Throwable) : RemoveUser()
@@ -127,15 +128,15 @@ internal sealed class PartialChange {
   }
 }
 
-internal sealed class SingleEvent {
-  sealed class Refresh : SingleEvent() {
+sealed interface SingleEvent : MviSingleEvent {
+  sealed class Refresh : SingleEvent {
     object Success : Refresh()
     data class Failure(val error: Throwable) : Refresh()
   }
 
-  data class GetUsersError(val error: Throwable) : SingleEvent()
+  data class GetUsersError(val error: Throwable) : SingleEvent
 
-  sealed class RemoveUser : SingleEvent() {
+  sealed class RemoveUser : SingleEvent {
     data class Success(val user: UserItem) : RemoveUser()
     data class Failure(val user: UserItem, val error: Throwable) : RemoveUser()
   }
