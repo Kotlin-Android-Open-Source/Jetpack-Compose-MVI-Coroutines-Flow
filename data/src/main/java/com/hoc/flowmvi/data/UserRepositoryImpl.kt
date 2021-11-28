@@ -1,7 +1,5 @@
 package com.hoc.flowmvi.data
 
-import arrow.core.Nel
-import arrow.core.Validated
 import arrow.core.computations.either
 import arrow.core.left
 import arrow.core.leftWiden
@@ -15,7 +13,6 @@ import com.hoc.flowmvi.data.remote.UserBody
 import com.hoc.flowmvi.data.remote.UserResponse
 import com.hoc.flowmvi.domain.model.User
 import com.hoc.flowmvi.domain.model.UserError
-import com.hoc.flowmvi.domain.model.UserValidationError
 import com.hoc.flowmvi.domain.repository.UserRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,7 +34,7 @@ import arrow.core.Either.Companion.catch as catchEither
 internal class UserRepositoryImpl @Inject constructor(
   private val userApiService: UserApiService,
   private val dispatchers: CoroutineDispatchers,
-  private val responseToDomain: @JvmSuppressWildcards Mapper<UserResponse, Validated<@JvmSuppressWildcards Nel<@JvmSuppressWildcards UserValidationError>, @JvmSuppressWildcards User>>,
+  private val responseToDomain: UserResponseToUserDomainMapperType,
   private val domainToBody: Mapper<User, UserBody>,
   private val errorMapper: Mapper<Throwable, UserError>,
 ) : UserRepository {

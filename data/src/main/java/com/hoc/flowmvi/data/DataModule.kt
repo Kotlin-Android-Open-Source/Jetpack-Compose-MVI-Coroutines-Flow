@@ -33,6 +33,8 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlin.time.ExperimentalTime
 
+internal typealias UserResponseToUserDomainMapperType = Mapper<UserResponse, Validated<@JvmSuppressWildcards Nel<@JvmSuppressWildcards UserValidationError>, @JvmSuppressWildcards User>>
+
 @Retention(AnnotationRetention.BINARY)
 @Qualifier
 private annotation class BaseUrl
