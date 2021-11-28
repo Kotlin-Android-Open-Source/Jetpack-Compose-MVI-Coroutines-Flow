@@ -36,9 +36,7 @@ import arrow.core.Either.Companion.catch as catchEither
 internal class UserRepositoryImpl @Inject constructor(
   private val userApiService: UserApiService,
   private val dispatchers: CoroutineDispatchers,
-  private val responseToDomain: Mapper<
-    @JvmSuppressWildcards UserResponse,
-    @JvmSuppressWildcards ValidatedNel<@JvmSuppressWildcards UserValidationError, @JvmSuppressWildcards User>>,
+  private val responseToDomain: @JvmSuppressWildcards Mapper<UserResponse, @JvmSuppressWildcards ValidatedNel<UserValidationError, User>>,
   private val domainToBody: Mapper<User, UserBody>,
   private val errorMapper: Mapper<Throwable, UserError>,
 ) : UserRepository {
