@@ -1,10 +1,12 @@
 package com.hoc.flowmvi.data
 
-import arrow.core.ValidatedNel
+import arrow.core.Nel
+import arrow.core.Validated
 import com.hoc.flowmvi.core.Mapper
 import com.hoc.flowmvi.data.mapper.UserDomainToUserBodyMapper
 import com.hoc.flowmvi.data.mapper.UserErrorMapper
 import com.hoc.flowmvi.data.mapper.UserResponseToUserDomainMapper
+import com.hoc.flowmvi.data.remote.ErrorResponse
 import com.hoc.flowmvi.data.remote.UserApiService
 import com.hoc.flowmvi.data.remote.UserBody
 import com.hoc.flowmvi.data.remote.UserResponse
@@ -12,7 +14,9 @@ import com.hoc.flowmvi.domain.model.User
 import com.hoc.flowmvi.domain.model.UserError
 import com.hoc.flowmvi.domain.model.UserValidationError
 import com.hoc.flowmvi.domain.repository.UserRepository
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Binds
 import dagger.Module
@@ -43,7 +47,7 @@ internal abstract class DataModule {
 
   @Binds
   abstract fun userResponseToUserMapper(impl: UserResponseToUserDomainMapper):
-    Mapper<UserResponse, ValidatedNel<UserValidationError, User>>
+    Mapper<UserResponse, Validated<Nel<UserValidationError>, User>>
 
   @Binds
   abstract fun userDomainToUserBodyMapper(impl: UserDomainToUserBodyMapper): Mapper<User, UserBody>
@@ -80,6 +84,11 @@ internal abstract class DataModule {
     @Provides
     @BaseUrl
     fun baseUrl(): String = "https://mvi-coroutines-flow-server.herokuapp.com/"
+
+    @OptIn(ExperimentalStdlibApi::class)
+    @Provides
+    @Singleton
+    fun errorResponseJsonAdapter(moshi: Moshi): JsonAdapter<ErrorResponse> = moshi.adapter()
   }
 }
 
