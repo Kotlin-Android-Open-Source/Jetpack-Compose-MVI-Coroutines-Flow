@@ -8,6 +8,7 @@ import com.hoc.flowmvi.domain.usecase.RemoveUserUseCase
 import com.hoc.flowmvi.mvi_base.AbstractMviViewModel
 import com.hoc081098.flowext.flatMapFirst
 import com.hoc081098.flowext.startWith
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,9 +29,11 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import timber.log.Timber
+import javax.inject.Inject
 
+@HiltViewModel
 @OptIn(FlowPreview::class)
-class MainVM(
+class MainVM @Inject constructor(
   private val getUsersUseCase: GetUsersUseCase,
   private val refreshGetUsers: RefreshGetUsersUseCase,
   private val removeUser: RemoveUserUseCase,
