@@ -43,7 +43,9 @@ internal abstract class DataModule {
 
   @Binds
   abstract fun userResponseToUserMapper(impl: UserResponseToUserDomainMapper):
-    Mapper<UserResponse, ValidatedNel<UserValidationError, User>>
+    Mapper<
+      @JvmSuppressWildcards UserResponse,
+      @JvmSuppressWildcards ValidatedNel<UserValidationError, User>>
 
   @Binds
   abstract fun userDomainToUserBodyMapper(impl: UserDomainToUserBodyMapper): Mapper<User, UserBody>

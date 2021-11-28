@@ -1,5 +1,5 @@
 package com.hoc.flowmvi.core
 
-interface Mapper<T, R> : (T) -> R {
-  override operator fun invoke(param: T): R
+interface Mapper<T, R> {
+  operator fun invoke(param: T): R
 }

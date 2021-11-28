@@ -36,7 +36,9 @@ import arrow.core.Either.Companion.catch as catchEither
 internal class UserRepositoryImpl @Inject constructor(
   private val userApiService: UserApiService,
   private val dispatchers: CoroutineDispatchers,
-  private val responseToDomain: Mapper<UserResponse, ValidatedNel<UserValidationError, User>>,
+  private val responseToDomain: Mapper<
+    @JvmSuppressWildcards UserResponse,
+    @JvmSuppressWildcards ValidatedNel<UserValidationError, User>>,
   private val domainToBody: Mapper<User, UserBody>,
   private val errorMapper: Mapper<Throwable, UserError>,
 ) : UserRepository {
@@ -105,13 +107,13 @@ internal class UserRepositoryImpl @Inject constructor(
     .tap { sendChange(Change.Refreshed(it)) }
     .map { }
     .tapLeft { logError(it, "refresh") }
-    .mapLeft(errorMapper)
+    .mapLeft(errorMapper::invoke)
 
   override suspend fun remove(user: User) = either<UserError, Unit> {
     withContext(dispatchers.io) {
       val response = catchEither { userApiService.remove(user.id) }
         .tapLeft { logError(it, "remove user=$user") }
-        .mapLeft(errorMapper)
+        .mapLeft(errorMapper::invoke)
         .bind()
 
       val deleted = responseToDomain(response)
@@ -127,7 +129,7 @@ internal class UserRepositoryImpl @Inject constructor(
     withContext(dispatchers.io) {
       val response = catchEither { userApiService.add(domainToBody(user)) }
         .tapLeft { logError(it, "add user=$user") }
-        .mapLeft(errorMapper)
+        .mapLeft(errorMapper::invoke)
         .bind()
 
       delay(400) // TODO
@@ -144,7 +146,7 @@ internal class UserRepositoryImpl @Inject constructor(
   override suspend fun search(query: String) = withContext(dispatchers.io) {
     catchEither { userApiService.search(query).map(responseToDomainThrows) }
       .tapLeft { logError(it, "search query=$query") }
-      .mapLeft(errorMapper)
+      .mapLeft(errorMapper::invoke)
   }
 
   private companion object {
