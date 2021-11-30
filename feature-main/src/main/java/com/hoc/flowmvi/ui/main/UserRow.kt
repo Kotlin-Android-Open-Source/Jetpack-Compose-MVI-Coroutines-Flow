@@ -49,6 +49,7 @@ import coil.transform.CircleCropTransformation
 import com.hoc.flowmvi.core.unit
 import com.hoc.flowmvi.domain.model.User
 import com.hoc.flowmvi.ui.theme.AppTheme
+import timber.log.Timber
 
 @Composable
 @OptIn(
@@ -58,8 +59,10 @@ import com.hoc.flowmvi.ui.theme.AppTheme
 internal fun UserRow(
   item: UserItem,
   modifier: Modifier = Modifier,
-  onDelete: (UserItem) -> Unit,
+  onDelete: () -> Unit,
 ) {
+  Timber.d("UserRow $item")
+
   val imageSize = 72.dp
   val padding = 8.dp
   val itemHeight = imageSize + padding * 2
@@ -68,7 +71,7 @@ internal fun UserRow(
     confirmStateChange = { dismissValue ->
       (dismissValue == DismissValue.DismissedToStart).also {
         if (it) {
-          onDelete(item)
+          onDelete()
         }
       }
     }
@@ -78,6 +81,8 @@ internal fun UserRow(
     key1 = item.isDeleting,
     key2 = item.id,
   ) {
+    Timber.d("UserRow LaunchedEffect(${item.isDeleting}, ${item.id})...")
+
     if (item.isDeleting) {
       dismissState.snapTo(DismissValue.DismissedToStart)
     } else {

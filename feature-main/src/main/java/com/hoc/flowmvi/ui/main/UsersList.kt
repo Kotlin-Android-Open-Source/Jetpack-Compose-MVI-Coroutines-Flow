@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import timber.log.Timber
 
 @Composable
 internal fun UsersList(
@@ -36,7 +37,10 @@ internal fun UsersList(
           item = item,
           modifier = Modifier
             .fillParentMaxWidth(),
-          onDelete = { processIntent(ViewIntent.RemoveUser(it)) }
+          onDelete = {
+            Timber.d("Remove user $item")
+            processIntent(ViewIntent.RemoveUser(item))
+          }
         )
 
         if (index < lastIndex) {
