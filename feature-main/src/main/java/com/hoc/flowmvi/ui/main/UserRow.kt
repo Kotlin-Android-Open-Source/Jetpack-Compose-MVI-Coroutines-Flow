@@ -61,7 +61,7 @@ internal fun UserRow(
   modifier: Modifier = Modifier,
   onDelete: () -> Unit,
 ) {
-  Timber.d("UserRow $item")
+  val deleting = item.isDeleting
 
   val imageSize = 72.dp
   val padding = 8.dp
@@ -77,16 +77,24 @@ internal fun UserRow(
     }
   )
 
-  LaunchedEffect(
-    key1 = item.isDeleting,
-    key2 = item.id,
-  ) {
-    Timber.d("UserRow LaunchedEffect(${item.isDeleting}, ${item.id})...")
+  Timber
+    .tag("UserRow")
+    .d("UserRow dismissState.currentValue=${dismissState.currentValue} deleting=$deleting item=$item")
 
-    if (item.isDeleting) {
-      dismissState.snapTo(DismissValue.DismissedToStart)
-    } else {
-      dismissState.snapTo(DismissValue.Default)
+  LaunchedEffect(deleting) {
+    Timber.tag("UserRow").d("UserRow LaunchedEffect($deleting, ${dismissState.currentValue}) $item")
+
+    when {
+      deleting -> {
+        if (dismissState.currentValue != DismissValue.DismissedToStart) {
+          dismissState.snapTo(DismissValue.DismissedToStart)
+        }
+      }
+      else -> {
+        if (dismissState.currentValue != DismissValue.Default) {
+          dismissState.snapTo(DismissValue.Default)
+        }
+      }
     }
   }
 
@@ -105,7 +113,7 @@ internal fun UserRow(
         contentAlignment = Alignment.CenterEnd
       ) {
         Icon(
-          if (item.isDeleting) Icons.Default.Downloading else Icons.Default.Delete,
+          if (deleting) Icons.Default.Downloading else Icons.Default.Delete,
           contentDescription = stringResource(R.string.delete),
           modifier = Modifier.scale(scale),
           tint = Color.White
