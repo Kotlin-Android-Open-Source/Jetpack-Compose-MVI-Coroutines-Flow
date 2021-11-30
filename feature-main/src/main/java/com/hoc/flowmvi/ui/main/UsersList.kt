@@ -16,14 +16,15 @@ import timber.log.Timber
 internal fun UsersList(
   isRefreshing: Boolean,
   userItems: List<UserItem>,
-  processIntent: (ViewIntent) -> Unit,
+  onRefresh: () -> Unit,
+  onRemove: (UserItem) -> Unit,
   modifier: Modifier = Modifier
 ) {
   val lastIndex = userItems.lastIndex
 
   SwipeRefresh(
     state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
-    onRefresh = { processIntent(ViewIntent.Refresh) },
+    onRefresh = onRefresh,
   ) {
     LazyColumn(
       modifier = modifier.fillMaxSize(),
@@ -39,7 +40,7 @@ internal fun UsersList(
             .fillParentMaxWidth(),
           onDelete = {
             Timber.d("Remove user $item")
-            processIntent(ViewIntent.RemoveUser(item))
+            onRemove(item)
           }
         )
 

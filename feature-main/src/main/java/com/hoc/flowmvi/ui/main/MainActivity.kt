@@ -10,6 +10,7 @@ import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
+import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -22,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -45,6 +47,7 @@ import com.hoc.flowmvi.domain.usecase.RemoveUserUseCase
 import com.hoc.flowmvi.ui.theme.AppTheme
 import com.hoc081098.flowext.startWith
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -52,6 +55,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -140,9 +144,32 @@ private fun MainScreen(
     },
     scaffoldState = scaffoldState,
   ) {
+    val scope = rememberCoroutineScope()
+    var job: Job? = remember { null }
+
+    val onRemove: (UserItem) -> Unit = { item ->
+      job?.cancel()
+      job = scope.launch {
+        val result = scaffoldState.snackbarHostState.showSnackbar(
+          message = "Removed '${item.fullName}'",
+          actionLabel = "OK",
+        )
+        when (result) {
+          SnackbarResult.Dismissed -> {
+            job = null
+          }
+          SnackbarResult.ActionPerformed -> {
+            intentChannel.trySend(ViewIntent.RemoveUser(item))
+          }
+        }
+      }
+    }
+
     MainContent(
       state = state,
-      processIntent = intentChannel::trySend,
+      onRefresh = { intentChannel.trySend(ViewIntent.Refresh) },
+      onRemove = onRemove,
+      onRetry = { intentChannel.trySend(ViewIntent.Retry) },
     )
   }
 }
@@ -150,7 +177,9 @@ private fun MainScreen(
 @Composable
 private fun MainContent(
   state: ViewState,
-  processIntent: (ViewIntent) -> Unit,
+  onRefresh: () -> Unit,
+  onRemove: (UserItem) -> Unit,
+  onRetry: () -> Unit,
   modifier: Modifier = Modifier
 ) {
   if (state.error != null) {
@@ -163,7 +192,7 @@ private fun MainContent(
         is UserError.UserNotFound -> "User not found"
         is UserError.ValidationFailed -> "Validation failed"
       },
-      onRetry = { processIntent(ViewIntent.Retry) },
+      onRetry = onRetry,
       modifier = modifier,
     )
   }
@@ -173,9 +202,10 @@ private fun MainContent(
   }
 
   UsersList(
-    processIntent = processIntent,
     isRefreshing = state.isRefreshing,
     userItems = state.userItems,
+    onRefresh = onRefresh,
+    onRemove = onRemove,
   )
 }
 
@@ -204,10 +234,10 @@ fun PreviewMainScreen() {
       )
     }
 
-    override suspend fun refresh() = TODO("Not yet implemented")
-    override suspend fun remove(user: User) = TODO("Not yet implemented")
-    override suspend fun add(user: User) = TODO("Not yet implemented")
-    override suspend fun search(query: String) = TODO("Not yet implemented")
+    override suspend fun refresh() = error("Not yet implemented")
+    override suspend fun remove(user: User) = error("Not yet implemented")
+    override suspend fun add(user: User) = error("Not yet implemented")
+    override suspend fun search(query: String) = error("Not yet implemented")
   }
 
   MainScreen(
