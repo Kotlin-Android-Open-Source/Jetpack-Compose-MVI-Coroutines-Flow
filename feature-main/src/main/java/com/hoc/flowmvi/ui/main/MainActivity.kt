@@ -3,22 +3,13 @@ package com.hoc.flowmvi.ui.main
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -31,20 +22,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoc.flowmvi.core.unit
 import com.hoc.flowmvi.core_ui.navigator.Navigator
 import com.hoc.flowmvi.core_ui.navigator.ProvideNavigator
 import com.hoc.flowmvi.core_ui.rememberFlowWithLifecycle
+import com.hoc.flowmvi.domain.model.UserError
 import com.hoc.flowmvi.ui.theme.AppTheme
+import com.hoc.flowmvi.ui.theme.LoadingIndicator
+import com.hoc.flowmvi.ui.theme.RetryButton
 import com.hoc081098.flowext.startWith
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.Channel
@@ -75,13 +64,13 @@ class MainActivity : AppCompatActivity() {
 }
 
 @Composable
-private fun MainScreen() {
-  val vm = viewModel<MainVM>()
+private fun MainScreen(
+  vm: MainVM = viewModel(),
+  scaffoldState: ScaffoldState = rememberScaffoldState()
+) {
   val singleEvent = rememberFlowWithLifecycle(vm.singleEvent)
   val state by vm.viewState.collectAsState()
   val intentChannel = remember { Channel<ViewIntent>(Channel.UNLIMITED) }
-
-  val scaffoldState = rememberScaffoldState()
 
   LaunchedEffect(vm) {
     intentChannel
@@ -140,8 +129,6 @@ private fun MainScreen() {
     },
     scaffoldState = scaffoldState,
   ) {
-    val coroutineScope = rememberCoroutineScope()
-
     MainContent(
       state = state,
       processIntent = intentChannel::trySend,
@@ -156,43 +143,22 @@ private fun MainContent(
   modifier: Modifier = Modifier
 ) {
   if (state.error != null) {
-    return Column(
-      modifier = modifier
-        .fillMaxSize()
-        .padding(8.dp),
-      verticalArrangement = Arrangement.Center,
-      horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-      Text(
-        text = state.error.message ?: "An expected error",
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis,
-        textAlign = TextAlign.Center,
-      )
-
-      Spacer(modifier = Modifier.height(8.dp))
-
-      Button(
-        onClick = { processIntent(ViewIntent.Retry) },
-        contentPadding = PaddingValues(
-          vertical = 12.dp,
-          horizontal = 24.dp,
-        ),
-        shape = RoundedCornerShape(6.dp),
-      ) {
-        Text(text = "RETRY")
-      }
-    }
+    return RetryButton(
+      errorMessage = when (state.error) {
+        is UserError.InvalidId -> "Invalid id"
+        UserError.NetworkError -> "Network error"
+        UserError.ServerError -> "Server error"
+        UserError.Unexpected -> "Unexpected error"
+        is UserError.UserNotFound -> "User not found"
+        is UserError.ValidationFailed -> "Validation failed"
+      },
+      onRetry = { processIntent(ViewIntent.Retry) },
+      modifier = modifier,
+    )
   }
 
   if (state.isLoading) {
-    return Column(
-      modifier = modifier.fillMaxSize(),
-      verticalArrangement = Arrangement.Center,
-      horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-      CircularProgressIndicator()
-    }
+    return LoadingIndicator(modifier)
   }
 
   UsersList(
