@@ -25,21 +25,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import arrow.core.Either
+import arrow.core.right
+import arrow.core.valueOr
 import com.hoc.flowmvi.core.unit
 import com.hoc.flowmvi.core_ui.LoadingIndicator
 import com.hoc.flowmvi.core_ui.RetryButton
 import com.hoc.flowmvi.core_ui.navigator.Navigator
 import com.hoc.flowmvi.core_ui.navigator.ProvideNavigator
 import com.hoc.flowmvi.core_ui.rememberFlowWithLifecycle
+import com.hoc.flowmvi.domain.model.User
 import com.hoc.flowmvi.domain.model.UserError
+import com.hoc.flowmvi.domain.repository.UserRepository
+import com.hoc.flowmvi.domain.usecase.GetUsersUseCase
+import com.hoc.flowmvi.domain.usecase.RefreshGetUsersUseCase
+import com.hoc.flowmvi.domain.usecase.RemoveUserUseCase
 import com.hoc.flowmvi.ui.theme.AppTheme
 import com.hoc081098.flowext.startWith
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
@@ -108,7 +119,7 @@ private fun MainScreen(
     topBar = {
       TopAppBar(
         title = {
-          Text(text = "MVI Coroutines Flow")
+          Text(text = stringResource(id = R.string.app_name))
         },
         actions = {
           CompositionLocalProvider(
@@ -165,5 +176,45 @@ private fun MainContent(
     processIntent = processIntent,
     isRefreshing = state.isRefreshing,
     userItems = state.userItems,
+  )
+}
+
+@Preview
+@Composable
+fun PreviewMainScreen() {
+  val userRepository = object : UserRepository {
+    override fun getUsers(): Flow<Either<UserError, List<User>>> {
+      return flowOf(
+        listOf(
+          User.create(
+            id = "1",
+            email = "hoc081098@gmail.com",
+            firstName = "first 1",
+            lastName = "last 1",
+            avatar = "",
+          ).valueOr { error("") },
+          User.create(
+            id = "2",
+            email = "mviflow@gmail.com",
+            firstName = "first 2",
+            lastName = "last 2",
+            avatar = "",
+          ).valueOr { error("") }
+        ).right()
+      )
+    }
+
+    override suspend fun refresh() = TODO("Not yet implemented")
+    override suspend fun remove(user: User) = TODO("Not yet implemented")
+    override suspend fun add(user: User) = TODO("Not yet implemented")
+    override suspend fun search(query: String) = TODO("Not yet implemented")
+  }
+
+  MainScreen(
+    vm = MainVM(
+      getUsersUseCase = GetUsersUseCase(userRepository = userRepository),
+      refreshGetUsers = RefreshGetUsersUseCase(userRepository = userRepository),
+      removeUser = RemoveUserUseCase(userRepository = userRepository)
+    )
   )
 }
