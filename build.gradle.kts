@@ -6,9 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 buildscript {
   repositories {
     google()
-    jcenter()
     mavenCentral()
-    maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
     gradlePluginPortal()
     maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
   }
@@ -96,7 +94,6 @@ allprojects {
     google()
     jcenter()
     mavenCentral()
-    maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
     maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/")
   }
