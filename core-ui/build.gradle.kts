@@ -38,9 +38,7 @@ android {
 }
 
 dependencies {
-  implementation(deps.compose.runtime)
-  implementation(deps.compose.ui)
-  implementation(deps.lifecycle.runtimeKtx)
+  implementationCompose()
   implementation(deps.lifecycle.runtimeKtx)
   implementation(deps.androidx.material)
 

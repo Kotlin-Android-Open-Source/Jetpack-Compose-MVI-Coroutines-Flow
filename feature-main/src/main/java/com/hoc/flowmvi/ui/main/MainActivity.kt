@@ -27,13 +27,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hoc.flowmvi.core.unit
+import com.hoc.flowmvi.core_ui.LoadingIndicator
+import com.hoc.flowmvi.core_ui.RetryButton
 import com.hoc.flowmvi.core_ui.navigator.Navigator
 import com.hoc.flowmvi.core_ui.navigator.ProvideNavigator
 import com.hoc.flowmvi.core_ui.rememberFlowWithLifecycle
 import com.hoc.flowmvi.domain.model.UserError
 import com.hoc.flowmvi.ui.theme.AppTheme
-import com.hoc.flowmvi.ui.theme.LoadingIndicator
-import com.hoc.flowmvi.ui.theme.RetryButton
 import com.hoc081098.flowext.startWith
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.Channel

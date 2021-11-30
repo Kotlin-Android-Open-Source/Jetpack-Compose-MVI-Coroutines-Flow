@@ -1,4 +1,4 @@
-package com.hoc.flowmvi.ui.theme
+package com.hoc.flowmvi.core_ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

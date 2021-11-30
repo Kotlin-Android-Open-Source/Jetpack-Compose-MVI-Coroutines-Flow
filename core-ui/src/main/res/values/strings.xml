@@ -1,3 +1,4 @@
 <resources>
   <string name="app_name">Compose MVI Coroutines Flow</string>
+  <string name="retry">RETRY</string>
 </resources>
