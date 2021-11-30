@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="1.8">
-      <module name="Jetpack-Compose-MVI-Coroutines-Flow.buildSrc" target="13" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.app" target="13" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.core-ui" target="13" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.data" target="13" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.domain" target="11" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.feature-add" target="13" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.feature-main" target="13" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.mvi-base" target="13" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.mvi-testing" target="13" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.test-utils" target="11" />
-      <module name="Jetpack_Compose_MVI_Coroutines_Flow.ui-theme" target="13" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="11" />
   </component>
 </project>

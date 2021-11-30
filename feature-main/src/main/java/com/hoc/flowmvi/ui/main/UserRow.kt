@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
@@ -37,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,6 +48,7 @@ import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import com.hoc.flowmvi.core.unit
 import com.hoc.flowmvi.domain.model.User
+import com.hoc.flowmvi.ui.theme.AppTheme
 
 @Composable
 @OptIn(
@@ -100,7 +101,7 @@ internal fun UserRow(
       ) {
         Icon(
           if (item.isDeleting) Icons.Default.Downloading else Icons.Default.Delete,
-          contentDescription = "Delete",
+          contentDescription = stringResource(R.string.delete),
           modifier = Modifier.scale(scale),
           tint = Color.White
         )
@@ -120,6 +121,7 @@ internal fun UserRow(
         builder = {
           crossfade(true)
           transformations(CircleCropTransformation())
+          placeholder(R.drawable.ic_baseline_person_24)
         },
       )
 
@@ -137,7 +139,7 @@ internal fun UserRow(
 
         when (painter.state) {
           ImagePainter.State.Empty -> Unit
-          is ImagePainter.State.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+          is ImagePainter.State.Loading -> Unit
           is ImagePainter.State.Success -> Unit
           is ImagePainter.State.Error -> {
             Column(
@@ -193,17 +195,40 @@ internal fun UserRow(
   widthDp = 300,
 )
 @Composable
-fun UserRowPreview() {
-  UserRow(
-    item = UserItem(
-      User.create(
-        id = "123",
-        email = "hoc081098@gmail.com",
-        firstName = "Hoc",
-        lastName = "Petrus ".repeat(10),
-        avatar = "test",
-      ).valueOr { error("") }
-    ),
-    onDelete = {}
-  )
+fun PreviewUserRow() {
+  AppTheme(darkTheme = false) {
+    UserRow(
+      item = UserItem(
+        User.create(
+          id = "123",
+          email = "hoc081098@gmail.com",
+          firstName = "Hoc",
+          lastName = "Petrus ".repeat(10),
+          avatar = "test",
+        ).valueOr { error("") }
+      ),
+      onDelete = {}
+    )
+  }
+}
+
+@Preview(
+  widthDp = 300,
+)
+@Composable
+fun PreviewUserRowDarkMode() {
+  AppTheme(darkTheme = true) {
+    UserRow(
+      item = UserItem(
+        User.create(
+          id = "123",
+          email = "hoc081098@gmail.com",
+          firstName = "Hoc",
+          lastName = "Petrus ".repeat(10),
+          avatar = "test",
+        ).valueOr { error("") }
+      ),
+      onDelete = {}
+    )
+  }
 }

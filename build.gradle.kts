@@ -1,3 +1,6 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
@@ -22,7 +25,7 @@ subprojects {
   apply(plugin = "com.diffplug.spotless")
   apply(plugin = "com.github.ben-manes.versions")
 
-  configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+  configure<SpotlessExtension> {
     kotlin {
       target("**/*.kt")
 
@@ -45,7 +48,7 @@ subprojects {
       target("**/res/**/*.xml")
 
       trimTrailingWhitespace()
-      indentWithSpaces()
+      indentWithSpaces(2)
       endWithNewline()
     }
 
@@ -69,17 +72,24 @@ subprojects {
 }
 
 allprojects {
-  tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+  val javaVersion = JavaVersion.VERSION_11.toString()
+
+  tasks.withType<KotlinCompile> {
     kotlinOptions {
-      jvmTarget = JavaVersion.VERSION_11.toString()
-      sourceCompatibility = JavaVersion.VERSION_11.toString()
-      targetCompatibility = JavaVersion.VERSION_11.toString()
+      jvmTarget = javaVersion
+      sourceCompatibility = javaVersion
+      targetCompatibility = javaVersion
 
       // Opt-in to experimental compose APIs
       freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
       // Enable experimental coroutines APIs, including collectAsState()
       freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
     }
+  }
+
+  tasks.withType<JavaCompile> {
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
   }
 
   repositories {
