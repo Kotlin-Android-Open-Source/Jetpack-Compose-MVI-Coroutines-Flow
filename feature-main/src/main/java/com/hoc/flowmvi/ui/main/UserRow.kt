@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
@@ -46,7 +45,6 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
-import com.hoc.flowmvi.core.unit
 import com.hoc.flowmvi.domain.model.User
 import com.hoc.flowmvi.ui.theme.AppTheme
 import timber.log.Timber
@@ -108,7 +106,7 @@ internal fun UserRow(
       Box(
         Modifier
           .fillMaxSize()
-          .background(Color.Red.copy(alpha = 0.5f))
+          .background(Color.Red.copy(alpha = 0.75f))
           .padding(horizontal = 20.dp),
         contentAlignment = Alignment.CenterEnd
       ) {
@@ -150,28 +148,19 @@ internal fun UserRow(
           modifier = Modifier.fillMaxSize(),
         )
 
-        when (painter.state) {
-          ImagePainter.State.Empty -> Unit
-          is ImagePainter.State.Loading -> Unit
-          is ImagePainter.State.Success -> Unit
-          is ImagePainter.State.Error -> {
-            Column(
-              modifier = Modifier.fillMaxSize(),
-              verticalArrangement = Arrangement.Center,
-              horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-              Icon(
-                imageVector = Icons.Filled.ErrorOutline,
-                contentDescription = "Error",
-                modifier = Modifier.size(width = 20.dp, height = 20.dp)
-              )
-
-              Spacer(modifier = Modifier.height(8.dp))
-
-              Text("Error", style = MaterialTheme.typography.caption)
-            }
+        if (painter.state is ImagePainter.State.Error) {
+          Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+          ) {
+            Icon(
+              imageVector = Icons.Filled.ErrorOutline,
+              contentDescription = "Error",
+              modifier = Modifier.size(width = 20.dp, height = 20.dp)
+            )
           }
-        }.unit
+        }
       }
 
       Spacer(modifier = Modifier.width(padding))
