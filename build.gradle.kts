@@ -15,7 +15,7 @@ buildscript {
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     classpath("com.diffplug.spotless:spotless-plugin-gradle:6.6.1")
     classpath("com.google.dagger:hilt-android-gradle-plugin:${deps.daggerHilt.version}")
-    classpath("com.github.ben-manes:gradle-versions-plugin:0.39.0")
+    classpath("com.github.ben-manes:gradle-versions-plugin:0.42.0")
   }
 }
 
