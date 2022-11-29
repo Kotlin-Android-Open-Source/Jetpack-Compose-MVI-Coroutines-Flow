@@ -35,5 +35,5 @@ android {
 dependencies {
   implementation(platform(deps.compose.bom))
   implementation(deps.compose.ui)
-  implementation(deps.compose.material)
+  implementation(deps.compose.material3)
 }

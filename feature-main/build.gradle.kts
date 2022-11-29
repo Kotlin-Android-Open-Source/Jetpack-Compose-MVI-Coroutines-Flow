@@ -52,6 +52,7 @@ dependencies {
   implementation(uiTheme)
 
   implementationCompose()
+  implementation(deps.immutableCollections)
 
   implementation(deps.androidx.appCompat)
   implementation(deps.androidx.coreKtx)

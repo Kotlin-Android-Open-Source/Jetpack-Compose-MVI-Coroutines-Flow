@@ -2,4 +2,5 @@
 <resources>
   <string name="add_user">Add user</string>
   <string name="delete">Delete</string>
+  <string name="delete_user_confirmaion">Do you want to delete "%s"? This action cannot be undone.</string>
 </resources>

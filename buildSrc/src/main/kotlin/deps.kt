@@ -47,7 +47,8 @@ object deps {
     const val layout = "androidx.compose.foundation:foundation-layout"
     const val foundation = "androidx.compose.foundation:foundation"
     const val ui = "androidx.compose.ui:ui"
-    const val material = "androidx.compose.material3:material3"
+    const val material = "androidx.compose.material:material"
+    const val material3 = "androidx.compose.material3:material3"
     const val materialIconsExtended = "androidx.compose.material:material-icons-extended"
     const val runtime = "androidx.compose.runtime:runtime"
     const val tooling = "androidx.compose.ui:ui-tooling"
@@ -106,6 +107,8 @@ object deps {
     const val compose = "io.coil-kt:coil-compose:2.2.2"
   }
 
+  const val immutableCollections = "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
+
   const val viewBindingDelegate = "com.github.hoc081098:ViewBindingDelegate:1.2.0"
   const val flowExt = "io.github.hoc081098:FlowExt:0.5.0"
   const val timber = "com.jakewharton.timber:timber:5.0.1"
@@ -159,6 +162,7 @@ fun DependencyHandler.implementationCompose() {
     deps.compose.foundation,
     deps.compose.ui,
     deps.compose.material,
+    deps.compose.material3,
     deps.compose.materialIconsExtended,
     deps.compose.runtime,
     deps.compose.uiToolingPreview,
