@@ -129,6 +129,7 @@ class MainVM @Inject constructor(
                   ifRight = { PartialChange.RemoveUser.Success(userItem) },
                 )
               }
+              .startWith(PartialChange.RemoveUser.Loading(userItem))
           }
       )
     }

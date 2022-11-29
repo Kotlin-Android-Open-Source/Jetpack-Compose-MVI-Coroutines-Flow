@@ -8,16 +8,16 @@ import org.gradle.plugin.use.PluginDependenciesSpec
 import org.gradle.plugin.use.PluginDependencySpec
 
 const val ktlintVersion = "0.43.0"
-const val kotlinVersion = "1.5.31"
+const val kotlinVersion = "1.7.20"
 
 object appConfig {
   const val applicationId = "com.hoc.flowmvi"
 
-  const val compileSdkVersion = 31
-  const val buildToolsVersion = "31.0.0"
+  const val compileSdkVersion = 33
+  const val buildToolsVersion = "33.0.0"
 
   const val minSdkVersion = 21
-  const val targetSdkVersion = 30
+  const val targetSdkVersion = 33
   const val versionCode = 1
   const val versionName = "1.0"
 }
@@ -28,32 +28,40 @@ object deps {
   }
 
   object androidx {
-    const val appCompat = "androidx.appcompat:appcompat:1.4.0"
-    const val coreKtx = "androidx.core:core-ktx:1.7.0"
+    const val appCompat = "androidx.appcompat:appcompat:1.5.1"
+    const val coreKtx = "androidx.core:core-ktx:1.9.0"
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.1.2"
     const val material = "com.google.android.material:material:1.4.0"
-    const val activityCompose = "androidx.activity:activity-compose:1.4.0"
+    const val activityCompose = "androidx.activity:activity-compose:1.6.1"
+
+    object navigation {
+      const val version = "2.5.2"
+      const val compose = "androidx.navigation:navigation-compose:$version"
+    }
   }
 
   object compose {
-    const val version = "1.1.0-beta03"
+    const val androidxComposeCompiler = "1.3.2"
+    const val bom = "androidx.compose:compose-bom:2022.11.00"
 
-    const val layout = "androidx.compose.foundation:foundation-layout:$version"
-    const val foundation = "androidx.compose.foundation:foundation:$version"
-    const val ui = "androidx.compose.ui:ui:$version"
-    const val material = "androidx.compose.material:material:$version"
-    const val materialIconsExtended = "androidx.compose.material:material-icons-extended:$version"
-    const val runtime = "androidx.compose.runtime:runtime:$version"
-    const val tooling = "androidx.compose.ui:ui-tooling:$version"
+    const val layout = "androidx.compose.foundation:foundation-layout"
+    const val foundation = "androidx.compose.foundation:foundation"
+    const val ui = "androidx.compose.ui:ui"
+    const val material = "androidx.compose.material3:material3"
+    const val materialIconsExtended = "androidx.compose.material:material-icons-extended"
+    const val runtime = "androidx.compose.runtime:runtime"
+    const val tooling = "androidx.compose.ui:ui-tooling"
+    const val uiToolingPreview = "androidx.compose.ui:ui-tooling-preview"
   }
 
   object lifecycle {
-    private const val version = "2.4.0"
+    private const val version = "2.6.0-alpha01"
 
     const val viewModelKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:$version" // viewModelScope
     const val runtimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:$version" // lifecycleScope
     const val commonJava8 = "androidx.lifecycle:lifecycle-common-java8:$version"
-    const val viewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha05"
+    const val viewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:$version"
+    const val runtimeCompose = "androidx.lifecycle:lifecycle-runtime-compose:$version" // lifecycleScope
   }
 
   object squareup {
@@ -64,7 +72,7 @@ object deps {
   }
 
   object coroutines {
-    private const val version = "1.5.2"
+    private const val version = "1.6.4"
 
     const val core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
     const val android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
@@ -72,15 +80,16 @@ object deps {
   }
 
   object arrow {
-    private const val version = "1.0.1"
+    private const val version = "1.1.3"
     const val core = "io.arrow-kt:arrow-core:$version"
   }
 
   object daggerHilt {
-    const val version = "2.40.2"
+    const val version = "2.43.2"
     const val android = "com.google.dagger:hilt-android:$version"
     const val core = "com.google.dagger:hilt-core:$version"
     const val compiler = "com.google.dagger:hilt-compiler:$version"
+    const val navigationCompose = "androidx.hilt:hilt-navigation-compose:1.0.0"
   }
 
   object dagger {
@@ -90,14 +99,15 @@ object deps {
   }
 
   object accompanist {
-    const val swiperefresh = "com.google.accompanist:accompanist-swiperefresh:0.21.3-beta"
+    const val swiperefresh = "com.google.accompanist:accompanist-swiperefresh:0.28.0"
   }
 
   object coil {
-    const val compose = "io.coil-kt:coil-compose:1.4.0"
+    const val compose = "io.coil-kt:coil-compose:2.2.2"
   }
+
   const val viewBindingDelegate = "com.github.hoc081098:ViewBindingDelegate:1.2.0"
-  const val flowExt = "io.github.hoc081098:FlowExt:0.1.0"
+  const val flowExt = "io.github.hoc081098:FlowExt:0.5.0"
   const val timber = "com.jakewharton.timber:timber:5.0.1"
 
   object test {
@@ -105,7 +115,7 @@ object deps {
     const val androidxJunit = "androidx.test.ext:junit:1.1.2"
     const val androidXSspresso = "androidx.test.espresso:espresso-core:3.3.0"
 
-    const val mockk = "io.mockk:mockk:1.12.1"
+    const val mockk = "io.mockk:mockk:1.12.5"
     const val kotlinJUnit = "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
   }
 }
@@ -134,14 +144,24 @@ inline val DependencyHandler.testUtils get() = project(":test-utils")
 
 fun DependencyHandler.implementationCompose() {
   arrayOf(
+    platform(deps.compose.bom),
+    // activity compose
     deps.androidx.activityCompose,
+    // navigation compose
+    deps.androidx.navigation.compose,
+    // lifecycle compose
     deps.lifecycle.viewModelCompose,
+    deps.lifecycle.runtimeCompose,
+    // hilt navigation compose
+    deps.daggerHilt.navigationCompose,
+    // compose
     deps.compose.layout,
     deps.compose.foundation,
     deps.compose.ui,
     deps.compose.material,
     deps.compose.materialIconsExtended,
     deps.compose.runtime,
+    deps.compose.uiToolingPreview,
   ).forEach { add("implementation", it) }
 
   add("debugImplementation", deps.compose.tooling)

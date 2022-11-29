@@ -75,8 +75,6 @@ allprojects {
   tasks.withType<KotlinCompile> {
     kotlinOptions {
       jvmTarget = javaVersion
-      sourceCompatibility = javaVersion
-      targetCompatibility = javaVersion
 
       // Opt-in to experimental compose APIs
       freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"

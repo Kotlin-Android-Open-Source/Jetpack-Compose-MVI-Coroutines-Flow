@@ -33,6 +33,13 @@ android {
       )
     }
   }
+
+  buildFeatures {
+    compose = true
+  }
+  composeOptions {
+    kotlinCompilerExtensionVersion = deps.compose.androidxComposeCompiler
+  }
 }
 
 dependencies {
@@ -45,6 +52,10 @@ dependencies {
     )
   )
 
+  implementation(deps.androidx.appCompat)
+  implementationCompose()
+
+  implementation(uiTheme)
   implementation(domain)
   implementation(data)
   implementation(core)
