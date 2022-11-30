@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -141,6 +144,12 @@ private fun DeleteUserConfirmationDialog(
 ) {
   AlertDialog(
     onDismissRequest = onDismiss,
+    icon = {
+      Icon(
+        imageVector = Icons.Filled.Delete,
+        contentDescription = null,
+      )
+    },
     title = {
       Text(
         text = stringResource(id = R.string.delete),
