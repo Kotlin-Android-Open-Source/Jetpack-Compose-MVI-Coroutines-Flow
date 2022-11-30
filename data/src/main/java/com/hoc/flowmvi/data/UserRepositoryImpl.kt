@@ -6,7 +6,7 @@ import arrow.core.leftWiden
 import arrow.core.right
 import arrow.core.valueOr
 import com.hoc.flowmvi.core.Mapper
-import com.hoc.flowmvi.core.dispatchers.CoroutineDispatchers
+import com.hoc.flowmvi.core.dispatchers.AppCoroutineDispatchers
 import com.hoc.flowmvi.core.retrySuspend
 import com.hoc.flowmvi.data.remote.UserApiService
 import com.hoc.flowmvi.data.remote.UserBody
@@ -33,7 +33,7 @@ import arrow.core.Either.Companion.catch as catchEither
 @ExperimentalTime
 internal class UserRepositoryImpl @Inject constructor(
   private val userApiService: UserApiService,
-  private val dispatchers: CoroutineDispatchers,
+  private val dispatchers: AppCoroutineDispatchers,
   private val responseToDomain: UserResponseToUserDomainMapperType,
   private val domainToBody: Mapper<User, UserBody>,
   private val errorMapper: Mapper<Throwable, UserError>,
