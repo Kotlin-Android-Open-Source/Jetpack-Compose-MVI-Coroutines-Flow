@@ -17,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -50,18 +49,17 @@ fun UsersListRoute(
   modifier: Modifier = Modifier,
   viewModel: MainVM = hiltViewModel(),
 ) {
-  val currentConfigAppBar by rememberUpdatedState(configAppBar)
   val title = stringResource(id = R.string.app_name)
-
-  OnLifecycleEvent { _, event ->
+  val appBarState = remember {
+    AppBarState(
+      title = title,
+      actions = {},
+      navigationIcon = {},
+    )
+  }
+  OnLifecycleEvent(configAppBar) { _, event ->
     if (event == Lifecycle.Event.ON_START) {
-      currentConfigAppBar(
-        AppBarState(
-          title = title,
-          actions = {},
-          navigationIcon = {},
-        )
-      )
+      configAppBar(appBarState)
     }
   }
 
@@ -74,8 +72,8 @@ fun UsersListRoute(
       .collect()
   }
 
-  val snackbarHostState = LocalSnackbarHostState.current
-  viewModel.singleEvent.collectInLaunchedEffectWithLifecycle(snackbarHostState) { event ->
+  val snackbarHostState by rememberUpdatedState(LocalSnackbarHostState.current)
+  viewModel.singleEvent.collectInLaunchedEffectWithLifecycle { event ->
     when (event) {
       SingleEvent.Refresh.Success -> {
         launch {
@@ -111,16 +109,17 @@ fun UsersListRoute(
       intentChannel.trySend(intent).getOrThrow()
     }
   }
-  var shouldBeDeletedItem by remember { mutableStateOf<UserItem?>(null) }
+
+  val (shouldBeDeletedItem, setShouldBeDeletedItem) = remember { mutableStateOf<UserItem?>(null) }
   if (shouldBeDeletedItem != null) {
     DeleteUserConfirmationDialog(
-      shouldBeDeletedItem = shouldBeDeletedItem!!,
+      shouldBeDeletedItem = shouldBeDeletedItem,
       onConfirm = {
         dispatch(ViewIntent.RemoveUser(it))
-        shouldBeDeletedItem = null
+        setShouldBeDeletedItem(null)
       },
       onDismiss = {
-        shouldBeDeletedItem = null
+        setShouldBeDeletedItem(null)
       },
     )
   }
@@ -130,7 +129,7 @@ fun UsersListRoute(
     viewState = viewState,
     onRetry = { dispatch(ViewIntent.Retry) },
     refresh = { dispatch(ViewIntent.Refresh) },
-    removeItem = { shouldBeDeletedItem = it },
+    removeItem = { setShouldBeDeletedItem(it) },
   )
 }
 
