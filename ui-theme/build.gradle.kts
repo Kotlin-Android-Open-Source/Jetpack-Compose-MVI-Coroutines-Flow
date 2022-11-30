@@ -28,11 +28,12 @@ android {
     compose = true
   }
   composeOptions {
-    kotlinCompilerExtensionVersion = deps.compose.version
+    kotlinCompilerExtensionVersion = deps.compose.androidxComposeCompiler
   }
 }
 
 dependencies {
+  implementation(platform(deps.compose.bom))
   implementation(deps.compose.ui)
-  implementation(deps.compose.material)
+  implementation(deps.compose.material3)
 }

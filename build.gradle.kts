@@ -67,6 +67,23 @@ subprojects {
       endWithNewline()
     }
   }
+
+  tasks.withType<KotlinCompile> {
+    kotlinOptions {
+      if (project.findProperty("composeCompilerReports") == "true") {
+        freeCompilerArgs = freeCompilerArgs + listOf(
+          "-P",
+          "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${project.buildDir.absolutePath}/compose_compiler"
+        )
+      }
+      if (project.findProperty("composeCompilerMetrics") == "true") {
+        freeCompilerArgs = freeCompilerArgs + listOf(
+          "-P",
+          "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${project.buildDir.absolutePath}/compose_compiler"
+        )
+      }
+    }
+  }
 }
 
 allprojects {
@@ -75,8 +92,6 @@ allprojects {
   tasks.withType<KotlinCompile> {
     kotlinOptions {
       jvmTarget = javaVersion
-      sourceCompatibility = javaVersion
-      targetCompatibility = javaVersion
 
       // Opt-in to experimental compose APIs
       freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"

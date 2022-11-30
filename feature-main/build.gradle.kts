@@ -34,7 +34,7 @@ android {
     compose = true
   }
   composeOptions {
-    kotlinCompilerExtensionVersion = deps.compose.version
+    kotlinCompilerExtensionVersion = deps.compose.androidxComposeCompiler
   }
   testOptions {
     unitTests {
@@ -52,6 +52,7 @@ dependencies {
   implementation(uiTheme)
 
   implementationCompose()
+  implementation(deps.immutableCollections)
 
   implementation(deps.androidx.appCompat)
   implementation(deps.androidx.coreKtx)

@@ -1,12 +1,18 @@
 package com.hoc.flowmvi.ui.main
 
+import androidx.compose.runtime.Immutable
 import arrow.core.Either
 import com.hoc.flowmvi.domain.model.User
 import com.hoc.flowmvi.domain.model.UserError
 import com.hoc.flowmvi.mvi_base.MviIntent
 import com.hoc.flowmvi.mvi_base.MviSingleEvent
 import com.hoc.flowmvi.mvi_base.MviViewState
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 
+@Immutable
 data class UserItem(
   val id: String,
   val email: String,
@@ -35,6 +41,7 @@ data class UserItem(
   ).toEither().mapLeft { UserError.ValidationFailed(it.toSet()) }
 }
 
+@Immutable
 sealed interface ViewIntent : MviIntent {
   object Initial : ViewIntent
   object Refresh : ViewIntent
@@ -42,15 +49,16 @@ sealed interface ViewIntent : MviIntent {
   data class RemoveUser(val user: UserItem) : ViewIntent
 }
 
+@Immutable
 data class ViewState(
-  val userItems: List<UserItem>,
+  val userItems: PersistentList<UserItem>,
   val isLoading: Boolean,
   val error: UserError?,
   val isRefreshing: Boolean
 ) : MviViewState {
   companion object {
     fun initial() = ViewState(
-      userItems = emptyList(),
+      userItems = persistentListOf(),
       isLoading = true,
       error = null,
       isRefreshing = false
@@ -71,7 +79,7 @@ internal sealed interface PartialChange {
         is Data -> vs.copy(
           isLoading = false,
           error = null,
-          userItems = users
+          userItems = users.toPersistentList()
         )
         is Error -> vs.copy(
           isLoading = false,
@@ -105,21 +113,25 @@ internal sealed interface PartialChange {
     data class Failure(val user: UserItem, val error: Throwable) : RemoveUser()
 
     override fun reduce(vs: ViewState) = when (this) {
-      is Failure -> vs.copy(
-        userItems = vs.userItems.map {
-          if (user.id == it.id) {
-            it.copy(isDeleting = false)
-          } else {
-            it
+      is Failure -> {
+        vs.copy(
+          userItems = vs.userItems.mutate { userItems ->
+            userItems.forEachIndexed { index, userItem ->
+              if (userItem.id == user.id) {
+                userItems[index] = userItem.copy(isDeleting = false)
+                return@mutate
+              }
+            }
           }
-        }
-      )
+        )
+      }
       is Loading -> vs.copy(
-        userItems = vs.userItems.map {
-          if (user.id == it.id) {
-            it.copy(isDeleting = true)
-          } else {
-            it
+        userItems = vs.userItems.mutate { userItems ->
+          userItems.forEachIndexed { index, userItem ->
+            if (userItem.id == user.id) {
+              userItems[index] = userItem.copy(isDeleting = true)
+              return@mutate
+            }
           }
         }
       )

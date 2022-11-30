@@ -29,7 +29,7 @@ android {
     compose = true
   }
   composeOptions {
-    kotlinCompilerExtensionVersion = deps.compose.version
+    kotlinCompilerExtensionVersion = deps.compose.androidxComposeCompiler
   }
   testOptions {
     unitTests.isIncludeAndroidResources = true
@@ -38,6 +38,8 @@ android {
 }
 
 dependencies {
+  implementation(uiTheme)
+
   implementationCompose()
   implementation(deps.lifecycle.runtimeKtx)
   implementation(deps.androidx.material)
