@@ -67,6 +67,23 @@ subprojects {
       endWithNewline()
     }
   }
+
+  tasks.withType<KotlinCompile> {
+    kotlinOptions {
+      if (project.findProperty("composeCompilerReports") == "true") {
+        freeCompilerArgs = freeCompilerArgs + listOf(
+          "-P",
+          "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${project.buildDir.absolutePath}/compose_compiler"
+        )
+      }
+      if (project.findProperty("composeCompilerMetrics") == "true") {
+        freeCompilerArgs = freeCompilerArgs + listOf(
+          "-P",
+          "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${project.buildDir.absolutePath}/compose_compiler"
+        )
+      }
+    }
+  }
 }
 
 allprojects {

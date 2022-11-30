@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
   androidApplication
   kotlinAndroid
@@ -23,6 +25,28 @@ android {
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
+  signingConfigs {
+    create("release") {
+      val keystoreProperties = Properties().apply {
+        load(
+          rootProject.file("keystore/key.properties")
+            .apply { check(exists()) }
+            .reader()
+        )
+      }
+
+      keyAlias = keystoreProperties["keyAlias"] as String
+      keyPassword = keystoreProperties["keyPassword"] as String
+      storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+        .apply { check(exists()) }
+      storePassword = keystoreProperties["storePassword"] as String
+
+      // Optional, specify signing versions used
+      enableV1Signing = true
+      enableV2Signing = true
+    }
+  }
+
   buildTypes {
     getByName("release") {
       isMinifyEnabled = true
@@ -31,6 +55,9 @@ android {
         getDefaultProguardFile("proguard-android-optimize.txt"),
         "proguard-rules.pro"
       )
+
+      signingConfig = signingConfigs.getByName("release")
+      isDebuggable = false
     }
   }
 
