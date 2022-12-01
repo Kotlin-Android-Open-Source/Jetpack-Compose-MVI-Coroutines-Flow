@@ -60,7 +60,6 @@ dependencies {
   implementation(deps.lifecycle.viewModelKtx)
   implementation(deps.lifecycle.runtimeKtx)
 
-  implementation(deps.androidx.constraintLayout)
   implementation(deps.androidx.material)
 
   implementation(deps.coroutines.core)

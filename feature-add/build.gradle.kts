@@ -30,13 +30,29 @@ android {
     }
   }
 
-  buildFeatures { viewBinding = true }
+  buildFeatures {
+    compose = true
+  }
+  composeOptions {
+    kotlinCompilerExtensionVersion = deps.compose.androidxComposeCompiler
+  }
+  testOptions {
+    unitTests {
+      isReturnDefaultValues = true
+      isIncludeAndroidResources = true
+    }
+  }
 }
 
 dependencies {
   implementation(domain)
   implementation(core)
   implementation(coreUi)
+  implementation(mviBase)
+  implementation(uiTheme)
+
+  implementationCompose()
+  implementation(deps.immutableCollections)
 
   implementation(deps.androidx.appCompat)
   implementation(deps.androidx.coreKtx)
@@ -44,7 +60,6 @@ dependencies {
   implementation(deps.lifecycle.viewModelKtx)
   implementation(deps.lifecycle.runtimeKtx)
 
-  implementation(deps.androidx.constraintLayout)
   implementation(deps.androidx.material)
 
   implementation(deps.coroutines.core)

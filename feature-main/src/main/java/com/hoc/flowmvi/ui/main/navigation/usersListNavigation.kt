@@ -7,23 +7,25 @@ import androidx.navigation.compose.composable
 import com.hoc.flowmvi.core_ui.ConfigAppBar
 import com.hoc.flowmvi.ui.main.UsersListRoute
 
-const val usersListNavigationRoute = "users_list_route"
+const val UsersListNavigationRoute = "users_list_route"
 
 /**
  * Navigate to users list screen
  */
 fun NavController.navigateUsersList(navOptions: NavOptions? = null) =
-  navigate(usersListNavigationRoute, navOptions)
+  navigate(UsersListNavigationRoute, navOptions)
 
 /**
  * Add the users list screen to the navigation graph.
  */
 fun NavGraphBuilder.usersListScreen(
   configAppBar: ConfigAppBar,
+  navigateToAddUser: () -> Unit,
 ) {
-  composable(route = usersListNavigationRoute) {
+  composable(route = UsersListNavigationRoute) {
     UsersListRoute(
-      configAppBar = configAppBar
+      configAppBar = configAppBar,
+      navigateToAddUser = navigateToAddUser,
     )
   }
 }

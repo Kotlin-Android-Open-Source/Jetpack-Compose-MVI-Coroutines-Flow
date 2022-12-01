@@ -4,16 +4,14 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.hoc.flowmvi.core_ui.AppBarState
 import com.hoc.flowmvi.core_ui.ProvideSnackbarHostState
+import com.hoc.flowmvi.ui.add.navigation.addNewUserScreen
+import com.hoc.flowmvi.ui.add.navigation.navigateToAddNewUser
 import com.hoc.flowmvi.ui.main.navigation.usersListScreen
 import com.hoc.flowmvi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,12 +32,7 @@ class MainActivity : AppCompatActivity() {
 
     setContent {
       AppTheme {
-        Surface(
-          color = MaterialTheme.colorScheme.background,
-          modifier = Modifier.fillMaxSize(),
-        ) {
-          JetpackComposeMVICoroutinesFlowApp()
-        }
+        JetpackComposeMVICoroutinesFlowApp()
       }
     }
   }
@@ -49,6 +44,7 @@ fun JetpackComposeMVICoroutinesFlowAppBar(
   title: String?,
   navigationIcon: @Composable () -> Unit,
   actions: @Composable RowScope.() -> Unit,
+  colors: TopAppBarColors,
   modifier: Modifier = Modifier
 ) {
   CenterAlignedTopAppBar(
@@ -59,7 +55,8 @@ fun JetpackComposeMVICoroutinesFlowAppBar(
     },
     modifier = modifier,
     navigationIcon = navigationIcon,
-    actions = actions
+    actions = actions,
+    colors = colors
   )
 }
 
@@ -82,6 +79,7 @@ private fun JetpackComposeMVICoroutinesFlowApp(
           title = it.title,
           actions = it.actions,
           navigationIcon = it.navigationIcon,
+          colors = it.colors
         )
       }
     }
@@ -94,6 +92,12 @@ private fun JetpackComposeMVICoroutinesFlowApp(
       ) {
         usersListScreen(
           configAppBar = setAppBarState,
+          navigateToAddUser = { navController.navigateToAddNewUser() }
+        )
+
+        addNewUserScreen(
+          configAppBar = setAppBarState,
+          onBackClick = appState::onBackClick
         )
       }
     }

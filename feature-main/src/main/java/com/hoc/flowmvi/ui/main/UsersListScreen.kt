@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,22 +49,32 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun UsersListRoute(
+internal fun UsersListRoute(
   configAppBar: ConfigAppBar,
+  navigateToAddUser: () -> Unit,
   modifier: Modifier = Modifier,
   viewModel: MainVM = hiltViewModel(),
 ) {
   val title = stringResource(id = R.string.app_name)
-  val appBarState = remember {
+  val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
+  val appBarState = remember(colors) {
     AppBarState(
       title = title,
-      actions = {},
+      actions = {
+        IconButton(onClick = navigateToAddUser) {
+          Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = "Add new user",
+          )
+        }
+      },
       navigationIcon = {},
+      colors = colors,
     )
   }
-  OnLifecycleEvent(configAppBar) { _, event ->
+  OnLifecycleEvent(configAppBar, appBarState) { _, event ->
     if (event == Lifecycle.Event.ON_START) {
       configAppBar(appBarState)
     }
