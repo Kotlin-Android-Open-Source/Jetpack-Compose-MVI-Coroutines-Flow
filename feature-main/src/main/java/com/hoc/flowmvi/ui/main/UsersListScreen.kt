@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,6 +41,7 @@ import com.hoc.flowmvi.core_ui.LocalSnackbarHostState
 import com.hoc.flowmvi.core_ui.OnLifecycleEvent
 import com.hoc.flowmvi.core_ui.RetryButton
 import com.hoc.flowmvi.core_ui.collectInLaunchedEffectWithLifecycle
+import com.hoc.flowmvi.core_ui.debugCheckImmediateMainDispatcher
 import com.hoc.flowmvi.domain.model.UserError
 import com.hoc081098.flowext.startWith
 import kotlinx.collections.immutable.ImmutableList
@@ -90,30 +92,33 @@ internal fun UsersListRoute(
   }
 
   val snackbarHostState by rememberUpdatedState(LocalSnackbarHostState.current)
+  val scope = rememberCoroutineScope()
   viewModel.singleEvent.collectInLaunchedEffectWithLifecycle { event ->
+    debugCheckImmediateMainDispatcher()
+
     when (event) {
       SingleEvent.Refresh.Success -> {
-        launch {
+        scope.launch {
           snackbarHostState.showSnackbar("Refresh successfully")
         }
       }
       is SingleEvent.Refresh.Failure -> {
-        launch {
+        scope.launch {
           snackbarHostState.showSnackbar("Failed to refresh")
         }
       }
       is SingleEvent.GetUsersError -> {
-        launch {
+        scope.launch {
           snackbarHostState.showSnackbar("Failed to get users")
         }
       }
       is SingleEvent.RemoveUser.Success -> {
-        launch {
+        scope.launch {
           snackbarHostState.showSnackbar("Removed '${event.user.fullName}'")
         }
       }
       is SingleEvent.RemoveUser.Failure -> {
-        launch {
+        scope.launch {
           snackbarHostState.showSnackbar("Failed to remove '${event.user.fullName}'")
         }
       }

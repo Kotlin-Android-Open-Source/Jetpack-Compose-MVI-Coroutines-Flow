@@ -1,5 +1,6 @@
 package com.hoc.flowmvi.mvi_base
 
+import androidx.annotation.MainThread
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -16,5 +17,6 @@ interface MviViewModel<I : MviIntent, S : MviViewState, E : MviSingleEvent> {
 
   val singleEvent: Flow<E>
 
-  suspend fun processIntent(intent: I)
+  @MainThread
+  fun processIntent(intent: I)
 }

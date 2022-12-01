@@ -2,6 +2,7 @@ plugins {
   androidLib
   kotlinAndroid
   kotlinKapt
+  kotlinParcelize
   daggerHiltAndroid
 }
 
@@ -62,7 +63,9 @@ dependencies {
 
   implementation(deps.androidx.material)
 
+  implementation(deps.arrow.core)
   implementation(deps.coroutines.core)
+  implementation(deps.flowExt)
 
   implementation(deps.daggerHilt.android)
   kapt(deps.daggerHilt.compiler)

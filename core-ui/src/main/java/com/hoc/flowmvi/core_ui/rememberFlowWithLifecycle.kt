@@ -8,7 +8,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 @Composable
 fun <T> rememberFlowWithLifecycle(
@@ -32,8 +34,10 @@ fun <T> Flow<T>.collectInLaunchedEffectWithLifecycle(
 ) {
   val flow = this
   LaunchedEffect(flow, lifecycle, minActiveState, *keys) {
-    lifecycle.repeatOnLifecycle(minActiveState) {
-      flow.collect { collector(it) }
+    withContext(Dispatchers.Main.immediate) {
+      lifecycle.repeatOnLifecycle(minActiveState) {
+        flow.collect { collector(it) }
+      }
     }
   }
 }
