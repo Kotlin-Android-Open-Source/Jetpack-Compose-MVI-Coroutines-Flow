@@ -2,7 +2,9 @@ package com.hoc.flowmvi.core_ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -33,10 +35,12 @@ fun <T> Flow<T>.collectInLaunchedEffectWithLifecycle(
   collector: suspend CoroutineScope.(T) -> Unit
 ) {
   val flow = this
+  val currentCollector by rememberUpdatedState(collector)
+
   LaunchedEffect(flow, lifecycle, minActiveState, *keys) {
     withContext(Dispatchers.Main.immediate) {
       lifecycle.repeatOnLifecycle(minActiveState) {
-        flow.collect { collector(it) }
+        flow.collect { currentCollector(it) }
       }
     }
   }

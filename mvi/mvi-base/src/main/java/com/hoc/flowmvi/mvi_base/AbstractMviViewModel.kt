@@ -45,7 +45,7 @@ abstract class AbstractMviViewModel<I : MviIntent, S : MviViewState, E : MviSing
   private val eventChannel = Channel<E>(Channel.UNLIMITED)
   private val intentMutableFlow = MutableSharedFlow<I>(extraBufferCapacity = Int.MAX_VALUE)
 
-  final override val singleEvent: Flow<E> get() = eventChannel.receiveAsFlow()
+  final override val singleEvent: Flow<E> = eventChannel.receiveAsFlow()
 
   @MainThread
   final override suspend fun processIntent(intent: I) {
