@@ -15,7 +15,7 @@ import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 
-internal class UserValidationErrorPersistentSetParceler :
+internal object UserValidationErrorPersistentSetParceler :
   Parceler<PersistentSet<UserValidationError>> {
   override fun create(parcel: Parcel) =
     persistentHashSetOf<UserValidationError>().apply {
@@ -65,10 +65,6 @@ sealed interface ViewIntent : MviIntent {
   data class LastNameChanged(val lastName: String) : ViewIntent
 
   object Submit : ViewIntent
-
-  object EmailChangedFirstTime : ViewIntent
-  object FirstNameChangedFirstTime : ViewIntent
-  object LastNameChangedFirstTime : ViewIntent
 }
 
 internal sealed interface PartialStateChange {

@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNot
@@ -48,10 +47,11 @@ class MainVM @Inject constructor(
       intentFlow.filterIsInstance<ViewIntent.Initial>().take(1),
       intentFlow.filterNot { it is ViewIntent.Initial }
     )
-      .toPartialChangeFlow()
+      .toPartialStateChangeFlow()
+      .log("PartialStateChange")
       .sendSingleEvent()
       .scan(initialVS) { vs, change -> change.reduce(vs) }
-      .catch { Timber.tag(logTag).e(it, "[MAIN_VM] Throwable: $it") }
+      .log("ViewState")
       .stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
@@ -79,7 +79,7 @@ class MainVM @Inject constructor(
     }
   }
 
-  private fun Flow<ViewIntent>.toPartialChangeFlow(): Flow<PartialChange> =
+  private fun Flow<ViewIntent>.toPartialStateChangeFlow(): Flow<PartialChange> =
     shareWhileSubscribed().run {
       val getUserChanges = defer(getUsersUseCase::invoke)
         .onEach { either -> Timber.d("[MAIN_VM] Emit users.size=${either.map { it.size }}") }
@@ -103,18 +103,14 @@ class MainVM @Inject constructor(
 
       return merge(
         filterIsInstance<ViewIntent.Initial>()
-          .log("Intent")
           .flatMapConcat { getUserChanges },
         filterIsInstance<ViewIntent.Refresh>()
           .filter { viewState.value.let { !it.isLoading && it.error === null } }
-          .log("Intent")
           .flatMapFirst { refreshChanges },
         filterIsInstance<ViewIntent.Retry>()
           .filter { viewState.value.error != null }
-          .log("Intent")
           .flatMapFirst { getUserChanges },
         filterIsInstance<ViewIntent.RemoveUser>()
-          .log("Intent")
           .map { it.user }
           .flatMapMerge { userItem ->
             flowFromSuspend {

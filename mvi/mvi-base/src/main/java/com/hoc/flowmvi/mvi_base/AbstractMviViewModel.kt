@@ -48,15 +48,18 @@ abstract class AbstractMviViewModel<I : MviIntent, S : MviViewState, E : MviSing
   final override val singleEvent: Flow<E> get() = eventChannel.receiveAsFlow()
 
   @MainThread
-  final override fun processIntent(intent: I) {
+  final override suspend fun processIntent(intent: I) {
     debugCheckMainThread()
+    debugCheckImmediateMainDispatcher()
     check(intentMutableFlow.tryEmit(intent)) { "Failed to emit intent: $intent" }
+    Timber.tag(logTag).d("processIntent: $intent")
   }
 
   @CallSuper
   override fun onCleared() {
     super.onCleared()
     eventChannel.close()
+    Timber.tag(logTag).d("onCleared")
   }
 
   // Send event and access intent flow.
@@ -65,6 +68,7 @@ abstract class AbstractMviViewModel<I : MviIntent, S : MviViewState, E : MviSing
     debugCheckMainThread()
     debugCheckImmediateMainDispatcher()
     eventChannel.trySendBlocking(event).getOrThrow()
+    Timber.tag(logTag).d("sendEvent: event=$event")
   }
 
   protected val intentFlow: SharedFlow<I> get() = intentMutableFlow

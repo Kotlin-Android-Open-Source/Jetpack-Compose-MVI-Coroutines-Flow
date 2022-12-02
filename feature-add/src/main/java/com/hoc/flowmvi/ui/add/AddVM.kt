@@ -1,7 +1,5 @@
 package com.hoc.flowmvi.ui.add
 
-import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import arrow.core.orNull
@@ -21,7 +19,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
@@ -32,6 +29,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,14 +46,15 @@ class AddVM @Inject constructor(
       .get<ViewState?>(VIEW_STATE)
       ?.copy(isLoading = false)
       ?: ViewState.initial()
-    Log.d(logTag, "[ADD_VM] initialVS: $initialVS")
+    Timber.tag(logTag).d("[ADD_VM] initialVS: $initialVS")
 
     viewState = intentFlow
-      .toPartialStateChangesFlow()
+      .toPartialStateChangesFlow(initialVS)
+      .log("PartialStateChange")
       .sendSingleEvent()
       .scan(initialVS) { state, change -> change.reduce(state) }
       .onEach { savedStateHandle[VIEW_STATE] = it }
-      .catch { Log.e(logTag, "[ADD_VM] Throwable: $it", it) }
+      .log("ViewState")
       .stateIn(viewModelScope, SharingStarted.Eagerly, initialVS)
   }
 
@@ -80,22 +79,22 @@ class AddVM @Inject constructor(
     }
   }
 
-  private fun SharedFlow<ViewIntent>.toPartialStateChangesFlow(): Flow<PartialStateChange> {
+  private fun SharedFlow<ViewIntent>.toPartialStateChangesFlow(initialVS: ViewState): Flow<PartialStateChange> {
     val emailFlow = filterIsInstance<ViewIntent.EmailChanged>()
-      .log("Intent")
       .map { it.email }
+      .startWith(initialVS.email)
       .distinctUntilChanged()
       .shareWhileSubscribed()
 
     val firstNameFlow = filterIsInstance<ViewIntent.FirstNameChanged>()
-      .log("Intent")
       .map { it.firstName }
+      .startWith(initialVS.firstName)
       .distinctUntilChanged()
       .shareWhileSubscribed()
 
     val lastNameFlow = filterIsInstance<ViewIntent.LastNameChanged>()
-      .log("Intent")
       .map { it.lastName }
+      .startWith(initialVS.lastName)
       .distinctUntilChanged()
       .shareWhileSubscribed()
 
@@ -114,7 +113,6 @@ class AddVM @Inject constructor(
     }.stateWithInitialNullWhileSubscribed()
 
     val addUserChanges = filterIsInstance<ViewIntent.Submit>()
-      .log("Intent")
       .withLatestFrom(userFormFlow) { _, userForm -> userForm }
       .mapNotNull { it?.orNull() }
       .flatMapFirst { user ->
@@ -128,20 +126,7 @@ class AddVM @Inject constructor(
           .startWith(PartialStateChange.AddUser.Loading)
       }
 
-    val firstChanges = merge(
-      filterIsInstance<ViewIntent.EmailChangedFirstTime>()
-        .log("Intent")
-        .take(1)
-        .mapTo(PartialStateChange.FirstChange.EmailChangedFirstTime),
-      filterIsInstance<ViewIntent.FirstNameChangedFirstTime>()
-        .log("Intent")
-        .take(1)
-        .mapTo(PartialStateChange.FirstChange.FirstNameChangedFirstTime),
-      filterIsInstance<ViewIntent.LastNameChangedFirstTime>()
-        .log("Intent")
-        .take(1)
-        .mapTo(PartialStateChange.FirstChange.LastNameChangedFirstTime)
-    )
+    val firstChanges = firstChangesFlow()
 
     val formValuesChanges = merge(
       emailFlow.map { PartialStateChange.FormValueChange.EmailChanged(it) },
@@ -165,6 +150,21 @@ class AddVM @Inject constructor(
       firstChanges,
     )
   }
+
+  //region Intent processors
+  private fun SharedFlow<ViewIntent>.firstChangesFlow() =
+    merge(
+      filterIsInstance<ViewIntent.EmailChanged>()
+        .take(1)
+        .mapTo(PartialStateChange.FirstChange.EmailChangedFirstTime),
+      filterIsInstance<ViewIntent.FirstNameChanged>()
+        .take(1)
+        .mapTo(PartialStateChange.FirstChange.FirstNameChangedFirstTime),
+      filterIsInstance<ViewIntent.LastNameChanged>()
+        .take(1)
+        .mapTo(PartialStateChange.FirstChange.LastNameChangedFirstTime)
+    )
+  //endregion
 
   private companion object {
     private const val VIEW_STATE = "com.hoc.flowmvi.ui.add.view_state"

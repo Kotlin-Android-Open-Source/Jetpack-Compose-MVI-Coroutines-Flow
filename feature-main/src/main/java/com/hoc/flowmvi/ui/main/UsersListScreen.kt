@@ -20,6 +20,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,11 +46,13 @@ import com.hoc.flowmvi.core_ui.debugCheckImmediateMainDispatcher
 import com.hoc.flowmvi.domain.model.UserError
 import com.hoc081098.flowext.startWith
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -84,11 +87,13 @@ internal fun UsersListRoute(
 
   val intentChannel = remember { Channel<ViewIntent>(Channel.UNLIMITED) }
   LaunchedEffect(Unit) {
-    intentChannel
-      .consumeAsFlow()
-      .startWith(ViewIntent.Initial)
-      .onEach(viewModel::processIntent)
-      .collect()
+    withContext(Dispatchers.Main.immediate) {
+      intentChannel
+        .consumeAsFlow()
+        .startWith(ViewIntent.Initial)
+        .onEach(viewModel::processIntent)
+        .collect()
+    }
   }
 
   val snackbarHostState by rememberUpdatedState(LocalSnackbarHostState.current)
@@ -217,15 +222,7 @@ private fun UsersListContent(
       modifier = Modifier
         .fillMaxSize(),
       onRetry = onRetry,
-      errorMessage = when (viewState.error) {
-        is UserError.InvalidId -> "Invalid id"
-        UserError.NetworkError -> "Network error"
-        UserError.ServerError -> "Server error"
-        UserError.Unexpected -> "Unexpected error"
-        is UserError.UserNotFound -> "User not found"
-        is UserError.ValidationFailed -> "Validation failed"
-        null -> ""
-      }
+      errorMessage = viewState.error?.getReadableMessage() ?: "",
     )
   }
 
@@ -281,4 +278,15 @@ private fun UsersList(
       }
     }
   }
+}
+
+@ReadOnlyComposable
+@Composable
+private fun UserError.getReadableMessage(): String = when (this) {
+  is UserError.InvalidId -> stringResource(R.string.invalid_id_error_message)
+  UserError.NetworkError -> stringResource(R.string.network_error_error_message)
+  UserError.ServerError -> stringResource(R.string.server_error_error_message)
+  UserError.Unexpected -> stringResource(R.string.unexpected_error_error_message)
+  is UserError.UserNotFound -> stringResource(R.string.user_not_found_error_message)
+  is UserError.ValidationFailed -> stringResource(R.string.validation_failed_error_message)
 }

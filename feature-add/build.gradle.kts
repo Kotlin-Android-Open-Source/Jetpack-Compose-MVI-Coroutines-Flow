@@ -63,8 +63,9 @@ dependencies {
 
   implementation(deps.androidx.material)
 
-  implementation(deps.arrow.core)
   implementation(deps.coroutines.core)
+  implementation(deps.arrow.core)
+  implementation(deps.timber)
   implementation(deps.flowExt)
 
   implementation(deps.daggerHilt.android)
