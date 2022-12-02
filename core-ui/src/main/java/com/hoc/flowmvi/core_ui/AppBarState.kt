@@ -15,4 +15,4 @@ data class AppBarState(
   val colors: TopAppBarColors,
 )
 
-typealias ConfigAppBar = (AppBarState) -> Unit
+typealias ConfigAppBar = (AppBarState?) -> Unit
