@@ -41,7 +41,6 @@ data class UserItem(
   ).toEither().mapLeft { UserError.ValidationFailed(it.toSet()) }
 }
 
-@Immutable
 sealed interface ViewIntent : MviIntent {
   object Initial : ViewIntent
   object Refresh : ViewIntent

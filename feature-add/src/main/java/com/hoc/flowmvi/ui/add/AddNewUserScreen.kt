@@ -54,6 +54,7 @@ import com.hoc.flowmvi.core_ui.LoadingIndicator
 import com.hoc.flowmvi.core_ui.LocalSnackbarHostState
 import com.hoc.flowmvi.core_ui.OnLifecycleEvent
 import com.hoc.flowmvi.core_ui.collectInLaunchedEffectWithLifecycle
+import com.hoc.flowmvi.core_ui.debugCheckImmediateMainDispatcher
 import com.hoc.flowmvi.domain.model.UserError
 import com.hoc.flowmvi.domain.model.UserValidationError
 import com.hoc.flowmvi.ui.theme.AppTheme
@@ -111,6 +112,8 @@ internal fun AddNewUserRoute(
   val scope = rememberCoroutineScope()
   val context = LocalContext.current
   viewModel.singleEvent.collectInLaunchedEffectWithLifecycle { event ->
+    debugCheckImmediateMainDispatcher()
+
     when (event) {
       is SingleEvent.AddUserFailure -> {
         scope.launch {
