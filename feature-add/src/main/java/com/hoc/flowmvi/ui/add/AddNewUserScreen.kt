@@ -61,6 +61,7 @@ import com.hoc.flowmvi.ui.theme.AppTheme
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onEach
@@ -75,6 +76,8 @@ internal fun AddNewUserRoute(
   modifier: Modifier = Modifier,
   viewModel: AddVM = hiltViewModel(),
 ) {
+  val currentOnBackClick by rememberUpdatedState(onBackClick)
+
   val title = stringResource(id = R.string.add_new_user)
   val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
   val appBarState = remember(colors) {
@@ -82,7 +85,7 @@ internal fun AddNewUserRoute(
       title = title,
       actions = {},
       navigationIcon = {
-        IconButton(onClick = onBackClick) {
+        IconButton(onClick = { currentOnBackClick() }) {
           Icon(
             imageVector = Icons.Filled.ArrowBack,
             contentDescription = "Back"
@@ -127,6 +130,10 @@ internal fun AddNewUserRoute(
           snackbarHostState.showSnackbar(
             context.getString(R.string.add_user_success)
           )
+        }
+        scope.launch {
+          delay(200)
+          currentOnBackClick()
         }
       }
     }
