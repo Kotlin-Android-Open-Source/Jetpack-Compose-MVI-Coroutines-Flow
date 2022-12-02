@@ -70,7 +70,7 @@ sealed interface ViewIntent : MviIntent {
 internal sealed interface PartialStateChange {
   fun reduce(viewState: ViewState): ViewState
 
-  data class ErrorsChanged(val errors: PersistentSet<UserValidationError>) : PartialStateChange {
+  data class Errors(val errors: PersistentSet<UserValidationError>) : PartialStateChange {
     override fun reduce(viewState: ViewState) =
       if (viewState.errors == errors) viewState
       else viewState.copy(errors = errors)
@@ -104,7 +104,7 @@ internal sealed interface PartialStateChange {
     }
   }
 
-  sealed class FormValueChange : PartialStateChange {
+  sealed class FormValue : PartialStateChange {
     override fun reduce(viewState: ViewState): ViewState {
       return when (this) {
         is EmailChanged -> {
@@ -122,9 +122,9 @@ internal sealed interface PartialStateChange {
       }
     }
 
-    data class EmailChanged(val email: String?) : FormValueChange()
-    data class FirstNameChanged(val firstName: String?) : FormValueChange()
-    data class LastNameChanged(val lastName: String?) : FormValueChange()
+    data class EmailChanged(val email: String?) : FormValue()
+    data class FirstNameChanged(val firstName: String?) : FormValue()
+    data class LastNameChanged(val lastName: String?) : FormValue()
   }
 }
 

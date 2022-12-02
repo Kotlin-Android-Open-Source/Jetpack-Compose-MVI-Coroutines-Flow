@@ -65,39 +65,39 @@ data class ViewState(
   }
 }
 
-internal sealed interface PartialChange {
-  fun reduce(vs: ViewState): ViewState
+internal sealed interface PartialStateChange {
+  fun reduce(viewState: ViewState): ViewState
 
-  sealed class GetUser : PartialChange {
-    override fun reduce(vs: ViewState): ViewState {
+  sealed class Users : PartialStateChange {
+    override fun reduce(viewState: ViewState): ViewState {
       return when (this) {
-        Loading -> vs.copy(
+        Loading -> viewState.copy(
           isLoading = true,
           error = null
         )
-        is Data -> vs.copy(
+        is Data -> viewState.copy(
           isLoading = false,
           error = null,
           userItems = users.toPersistentList()
         )
-        is Error -> vs.copy(
+        is Error -> viewState.copy(
           isLoading = false,
           error = error
         )
       }
     }
 
-    object Loading : GetUser()
-    data class Data(val users: List<UserItem>) : GetUser()
-    data class Error(val error: UserError) : GetUser()
+    object Loading : Users()
+    data class Data(val users: List<UserItem>) : Users()
+    data class Error(val error: UserError) : Users()
   }
 
-  sealed class Refresh : PartialChange {
-    override fun reduce(vs: ViewState): ViewState {
+  sealed class Refresh : PartialStateChange {
+    override fun reduce(viewState: ViewState): ViewState {
       return when (this) {
-        is Success -> vs.copy(isRefreshing = false)
-        is Failure -> vs.copy(isRefreshing = false)
-        Loading -> vs.copy(isRefreshing = true)
+        is Success -> viewState.copy(isRefreshing = false)
+        is Failure -> viewState.copy(isRefreshing = false)
+        Loading -> viewState.copy(isRefreshing = true)
       }
     }
 
@@ -106,15 +106,15 @@ internal sealed interface PartialChange {
     data class Failure(val error: UserError) : Refresh()
   }
 
-  sealed class RemoveUser : PartialChange {
+  sealed class RemoveUser : PartialStateChange {
     data class Loading(val user: UserItem) : RemoveUser()
     data class Success(val user: UserItem) : RemoveUser()
     data class Failure(val user: UserItem, val error: Throwable) : RemoveUser()
 
-    override fun reduce(vs: ViewState) = when (this) {
+    override fun reduce(viewState: ViewState) = when (this) {
       is Failure -> {
-        vs.copy(
-          userItems = vs.userItems.mutate { userItems ->
+        viewState.copy(
+          userItems = viewState.userItems.mutate { userItems ->
             userItems.forEachIndexed { index, userItem ->
               if (userItem.id == user.id) {
                 userItems[index] = userItem.copy(isDeleting = false)
@@ -124,8 +124,8 @@ internal sealed interface PartialChange {
           }
         )
       }
-      is Loading -> vs.copy(
-        userItems = vs.userItems.mutate { userItems ->
+      is Loading -> viewState.copy(
+        userItems = viewState.userItems.mutate { userItems ->
           userItems.forEachIndexed { index, userItem ->
             if (userItem.id == user.id) {
               userItems[index] = userItem.copy(isDeleting = true)
@@ -134,7 +134,7 @@ internal sealed interface PartialChange {
           }
         }
       )
-      is Success -> vs
+      is Success -> viewState
     }
   }
 }

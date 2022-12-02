@@ -2,8 +2,10 @@ package com.hoc.flowmvi.ui.add
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import arrow.core.ValidatedNel
 import arrow.core.orNull
 import com.hoc.flowmvi.domain.model.User
+import com.hoc.flowmvi.domain.model.UserValidationError
 import com.hoc.flowmvi.domain.usecase.AddUserUseCase
 import com.hoc.flowmvi.mvi_base.AbstractMviViewModel
 import com.hoc081098.flowext.flatMapFirst
@@ -32,6 +34,8 @@ import kotlinx.coroutines.flow.take
 import timber.log.Timber
 import javax.inject.Inject
 
+private typealias UserFormStateFlow = StateFlow<ValidatedNel<UserValidationError, User>?>
+
 @HiltViewModel
 @ExperimentalCoroutinesApi
 class AddVM @Inject constructor(
@@ -49,7 +53,7 @@ class AddVM @Inject constructor(
     Timber.tag(logTag).d("[ADD_VM] initialVS: $initialVS")
 
     viewState = intentFlow
-      .toPartialStateChangesFlow(initialVS)
+      .toPartialStateChangeFlow(initialVS)
       .log("PartialStateChange")
       .sendSingleEvent()
       .scan(initialVS) { state, change -> change.reduce(state) }
@@ -61,7 +65,7 @@ class AddVM @Inject constructor(
   private fun Flow<PartialStateChange>.sendSingleEvent(): Flow<PartialStateChange> {
     return onEach { change ->
       val event = when (change) {
-        is PartialStateChange.ErrorsChanged -> return@onEach
+        is PartialStateChange.Errors -> return@onEach
         PartialStateChange.AddUser.Loading -> return@onEach
         is PartialStateChange.AddUser.AddUserSuccess -> SingleEvent.AddUserSuccess(change.user)
         is PartialStateChange.AddUser.AddUserFailure -> SingleEvent.AddUserFailure(
@@ -71,15 +75,15 @@ class AddVM @Inject constructor(
         PartialStateChange.FirstChange.EmailChangedFirstTime -> return@onEach
         PartialStateChange.FirstChange.FirstNameChangedFirstTime -> return@onEach
         PartialStateChange.FirstChange.LastNameChangedFirstTime -> return@onEach
-        is PartialStateChange.FormValueChange.EmailChanged -> return@onEach
-        is PartialStateChange.FormValueChange.FirstNameChanged -> return@onEach
-        is PartialStateChange.FormValueChange.LastNameChanged -> return@onEach
+        is PartialStateChange.FormValue.EmailChanged -> return@onEach
+        is PartialStateChange.FormValue.FirstNameChanged -> return@onEach
+        is PartialStateChange.FormValue.LastNameChanged -> return@onEach
       }
       sendEvent(event)
     }
   }
 
-  private fun SharedFlow<ViewIntent>.toPartialStateChangesFlow(initialVS: ViewState): Flow<PartialStateChange> {
+  private fun SharedFlow<ViewIntent>.toPartialStateChangeFlow(initialVS: ViewState): Flow<PartialStateChange> {
     val emailFlow = filterIsInstance<ViewIntent.EmailChanged>()
       .map { it.email }
       .startWith(initialVS.email)
@@ -112,8 +116,41 @@ class AddVM @Inject constructor(
       )
     }.stateWithInitialNullWhileSubscribed()
 
-    val addUserChanges = filterIsInstance<ViewIntent.Submit>()
-      .withLatestFrom(userFormFlow) { _, userForm -> userForm }
+    val formValuesChangeFlow = merge(
+      emailFlow.map { PartialStateChange.FormValue.EmailChanged(it) },
+      firstNameFlow.map { PartialStateChange.FormValue.FirstNameChanged(it) },
+      lastNameFlow.map { PartialStateChange.FormValue.LastNameChanged(it) },
+    )
+
+    return merge(
+      // form values change
+      formValuesChangeFlow,
+      // first change
+      toFirstChangeFlow(),
+      // errors change
+      userFormFlow.toErrorsChangeFlow(),
+      // add user change
+      filterIsInstance<ViewIntent.Submit>()
+        .toAddUserChangeFlow(userFormFlow),
+    )
+  }
+
+  //region Processors
+  private fun SharedFlow<ViewIntent>.toFirstChangeFlow(): Flow<PartialStateChange.FirstChange> =
+    merge(
+      filterIsInstance<ViewIntent.EmailChanged>()
+        .take(1)
+        .mapTo(PartialStateChange.FirstChange.EmailChangedFirstTime),
+      filterIsInstance<ViewIntent.FirstNameChanged>()
+        .take(1)
+        .mapTo(PartialStateChange.FirstChange.FirstNameChangedFirstTime),
+      filterIsInstance<ViewIntent.LastNameChanged>()
+        .take(1)
+        .mapTo(PartialStateChange.FirstChange.LastNameChangedFirstTime)
+    )
+
+  private fun Flow<ViewIntent.Submit>.toAddUserChangeFlow(userFormFlow: UserFormStateFlow): Flow<PartialStateChange.AddUser> =
+    withLatestFrom(userFormFlow) { _, userForm -> userForm }
       .mapNotNull { it?.orNull() }
       .flatMapFirst { user ->
         flowFromSuspend { addUser(user) }
@@ -126,44 +163,15 @@ class AddVM @Inject constructor(
           .startWith(PartialStateChange.AddUser.Loading)
       }
 
-    val firstChanges = firstChangesFlow()
-
-    val formValuesChanges = merge(
-      emailFlow.map { PartialStateChange.FormValueChange.EmailChanged(it) },
-      firstNameFlow.map { PartialStateChange.FormValueChange.FirstNameChanged(it) },
-      lastNameFlow.map { PartialStateChange.FormValueChange.LastNameChanged(it) },
-    )
-
-    val errorsChanges = userFormFlow.map { validated ->
-      PartialStateChange.ErrorsChanged(
+  private fun UserFormStateFlow.toErrorsChangeFlow(): Flow<PartialStateChange.Errors> =
+    map { validated ->
+      PartialStateChange.Errors(
         validated?.fold(
           { it.toPersistentHashSet() },
           { persistentHashSetOf() }
         ) ?: persistentHashSetOf()
       )
     }
-
-    return merge(
-      formValuesChanges,
-      errorsChanges,
-      addUserChanges,
-      firstChanges,
-    )
-  }
-
-  //region Intent processors
-  private fun SharedFlow<ViewIntent>.firstChangesFlow() =
-    merge(
-      filterIsInstance<ViewIntent.EmailChanged>()
-        .take(1)
-        .mapTo(PartialStateChange.FirstChange.EmailChangedFirstTime),
-      filterIsInstance<ViewIntent.FirstNameChanged>()
-        .take(1)
-        .mapTo(PartialStateChange.FirstChange.FirstNameChangedFirstTime),
-      filterIsInstance<ViewIntent.LastNameChanged>()
-        .take(1)
-        .mapTo(PartialStateChange.FirstChange.LastNameChangedFirstTime)
-    )
   //endregion
 
   private companion object {
