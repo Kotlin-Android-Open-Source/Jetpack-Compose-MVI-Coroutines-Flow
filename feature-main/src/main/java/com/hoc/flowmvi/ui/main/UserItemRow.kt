@@ -11,8 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.DismissDirection
@@ -38,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import arrow.core.getOrElse
@@ -50,7 +50,7 @@ import com.hoc.flowmvi.domain.model.LastName
 import com.hoc.flowmvi.domain.model.User
 import com.hoc.flowmvi.ui.theme.AppTheme
 
-private object UserItemRowDefaults {
+internal object UserItemRowDefaults {
   val ImageSize = 72.dp
   val Padding = 8.dp
   val DismissBackgroundColor = Color.Red.copy(alpha = 0.75f)
@@ -62,6 +62,9 @@ internal fun UserItemRow(
   item: UserItem,
   onRemove: () -> Unit,
   modifier: Modifier = Modifier,
+  imageSize: Dp = UserItemRowDefaults.ImageSize,
+  padding: Dp = UserItemRowDefaults.Padding,
+  dismissBackgroundColor: Color = UserItemRowDefaults.DismissBackgroundColor,
 ) {
   val dismissState = rememberDismissState(
     confirmStateChange = { dismissValue ->
@@ -86,7 +89,7 @@ internal fun UserItemRow(
       Box(
         Modifier
           .fillMaxSize()
-          .background(UserItemRowDefaults.DismissBackgroundColor)
+          .background(dismissBackgroundColor)
           .padding(horizontal = 20.dp),
         contentAlignment = Alignment.CenterEnd
       ) {
@@ -104,11 +107,14 @@ internal fun UserItemRow(
     Row(
       modifier = modifier
         .background(MaterialTheme.colorScheme.background)
-        .padding(all = UserItemRowDefaults.Padding),
+        .padding(all = padding),
     ) {
-      UserItemAvatar(item)
+      UserItemAvatar(
+        item = item,
+        imageSize = imageSize,
+      )
 
-      Spacer(modifier = Modifier.width(UserItemRowDefaults.Padding))
+      Spacer(modifier = Modifier.width(padding))
 
       Column(
         modifier = Modifier
@@ -124,7 +130,7 @@ internal fun UserItemRow(
           overflow = TextOverflow.Ellipsis,
         )
 
-        Spacer(modifier = Modifier.height(UserItemRowDefaults.Padding))
+        Spacer(modifier = Modifier.height(padding))
 
         Text(
           modifier = Modifier.fillMaxWidth(),
@@ -149,11 +155,14 @@ internal fun UserItemRow(
 }
 
 @Composable
-private fun UserItemAvatar(item: UserItem) {
+private fun UserItemAvatar(
+  item: UserItem,
+  imageSize: Dp,
+  modifier: Modifier = Modifier,
+) {
   SubcomposeAsyncImage(
-    modifier = Modifier
-      .requiredWidth(UserItemRowDefaults.ImageSize)
-      .requiredHeight(UserItemRowDefaults.ImageSize),
+    modifier = modifier
+      .requiredSize(imageSize),
     model = ImageRequest.Builder(LocalContext.current)
       .data(item.avatar)
       .crossfade(true)
