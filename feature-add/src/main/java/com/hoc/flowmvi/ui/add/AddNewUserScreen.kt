@@ -156,7 +156,6 @@ internal fun AddNewUserRoute(
   )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddNewUserContent(
   viewState: ViewState,
@@ -166,17 +165,8 @@ private fun AddNewUserContent(
   onSubmit: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  val emailError =
-    if (viewState.emailChanged && UserValidationError.INVALID_EMAIL_ADDRESS in viewState.errors) "Invalid email"
-    else null
-
-  val firstNameError =
-    if (viewState.firstNameChanged && UserValidationError.TOO_SHORT_FIRST_NAME in viewState.errors) "Too short first name"
-    else null
-
-  val lastNameError =
-    if (viewState.lastNameChanged && UserValidationError.TOO_SHORT_LAST_NAME in viewState.errors) "Too short last name"
-    else null
+  val resources = LocalContext.current.resources
+  val errors = viewState.errors
 
   Box(
     modifier = modifier
@@ -191,123 +181,198 @@ private fun AddNewUserContent(
     ) {
       Spacer(modifier = Modifier.height(16.dp))
 
-      TextField(
-        modifier = Modifier.fillMaxWidth(),
-        value = viewState.email ?: "",
-        onValueChange = onEmailChanged,
-        label = { Text(text = "Email") },
-        leadingIcon = {
-          Icon(
-            imageVector = Icons.Filled.Email,
-            contentDescription = "Email"
-          )
-        },
-        maxLines = 1,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-          keyboardType = KeyboardType.Email,
-          imeAction = ImeAction.Next
-        ),
-        isError = emailError !== null,
-        supportingText = {
-          emailError?.let {
-            Text(text = it)
+      EmailTextField(
+        email = viewState.email ?: "",
+        onEmailChanged = onEmailChanged,
+        emailError = remember(viewState.emailChanged, errors, resources) {
+          if (viewState.emailChanged && UserValidationError.INVALID_EMAIL_ADDRESS in errors) {
+            resources.getString(R.string.invalid_email)
+          } else {
+            null
           }
         }
       )
 
       Spacer(modifier = Modifier.height(16.dp))
 
-      TextField(
-        modifier = Modifier.fillMaxWidth(),
-        value = viewState.firstName ?: "",
-        onValueChange = onFirstNameChanged,
-        label = { Text(text = "First name") },
-        leadingIcon = {
-          Icon(
-            imageVector = Icons.Filled.Person,
-            contentDescription = "First name"
-          )
-        },
-        maxLines = 1,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-          keyboardType = KeyboardType.Text,
-          imeAction = ImeAction.Next
-        ),
-        isError = firstNameError !== null,
-        supportingText = {
-          firstNameError?.let {
-            Text(text = it)
+      FirstNameTextField(
+        firstName = viewState.firstName ?: "",
+        onFirstNameChanged = onFirstNameChanged,
+        firstNameError = remember(viewState.firstNameChanged, errors, resources) {
+          if (viewState.firstNameChanged && UserValidationError.TOO_SHORT_FIRST_NAME in errors) {
+            resources.getString(R.string.too_short_first_name)
+          } else {
+            null
           }
         }
       )
 
       Spacer(modifier = Modifier.height(16.dp))
 
-      TextField(
-        modifier = Modifier.fillMaxWidth(),
-        value = viewState.lastName ?: "",
-        onValueChange = onLastNameChanged,
-        label = { Text(text = "Last name") },
-        leadingIcon = {
-          Icon(
-            imageVector = Icons.Filled.Person,
-            contentDescription = "Last name"
-          )
-        },
-        maxLines = 1,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-          keyboardType = KeyboardType.Text,
-          imeAction = ImeAction.Done
-        ),
-        isError = lastNameError !== null,
-        supportingText = {
-          lastNameError?.let {
-            Text(text = it)
+      LastNameTextField(
+        lastName = viewState.lastName ?: "",
+        onLastNameChanged = onLastNameChanged,
+        lastNameError = remember(viewState.lastNameChanged, errors, resources) {
+          if (viewState.lastNameChanged && UserValidationError.TOO_SHORT_LAST_NAME in errors) {
+            resources.getString(R.string.too_short_last_name)
+          } else {
+            null
           }
         }
       )
 
       Spacer(modifier = Modifier.height(24.dp))
 
-      Crossfade(
-        modifier = Modifier
-          .fillMaxWidth()
-          .heightIn(min = 64.dp),
-        targetState = viewState.isLoading,
-        animationSpec = tween(durationMillis = 200),
-        label = "LoadingIndicator/ElevatedButton",
-      ) { isLoading ->
-        if (isLoading) {
-          LoadingIndicator(
-            modifier = Modifier
-              .fillMaxWidth(),
-          )
-        } else {
-          ElevatedButton(
-            modifier = Modifier
-              .fillMaxWidth()
-              .wrapContentSize(Alignment.Center),
-            colors = ButtonDefaults.elevatedButtonColors(
-              containerColor = MaterialTheme.colorScheme.primary,
-              contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
-            onClick = onSubmit,
-            contentPadding = PaddingValues(
-              horizontal = 32.dp,
-              vertical = 16.dp,
-            ),
-          ) {
-            Text(text = "Add")
-          }
-        }
-      }
+      AddButton(
+        isLoading = viewState.isLoading,
+        onSubmit = onSubmit,
+      )
 
       Spacer(modifier = Modifier.height(16.dp))
     }
   }
+}
+
+@Composable
+private fun AddButton(
+  isLoading: Boolean,
+  onSubmit: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  Crossfade(
+    modifier = modifier
+      .fillMaxWidth()
+      .heightIn(min = 64.dp),
+    targetState = isLoading,
+    animationSpec = tween(durationMillis = 200),
+    label = "LoadingIndicator/ElevatedButton",
+  ) { state ->
+    if (state) {
+      LoadingIndicator(
+        modifier = Modifier
+          .fillMaxWidth(),
+      )
+    } else {
+      ElevatedButton(
+        modifier = Modifier
+          .fillMaxWidth()
+          .wrapContentSize(Alignment.Center),
+        colors = ButtonDefaults.elevatedButtonColors(
+          containerColor = MaterialTheme.colorScheme.primary,
+          contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        onClick = onSubmit,
+        contentPadding = PaddingValues(
+          horizontal = 32.dp,
+          vertical = 16.dp,
+        ),
+      ) {
+        Text(text = "Add")
+      }
+    }
+  }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun LastNameTextField(
+  lastName: String,
+  onLastNameChanged: (String) -> Unit,
+  lastNameError: String?,
+  modifier: Modifier = Modifier,
+) {
+  TextField(
+    modifier = modifier.fillMaxWidth(),
+    value = lastName,
+    onValueChange = onLastNameChanged,
+    label = { Text(text = "Last name") },
+    leadingIcon = {
+      Icon(
+        imageVector = Icons.Filled.Person,
+        contentDescription = "Last name"
+      )
+    },
+    maxLines = 1,
+    singleLine = true,
+    keyboardOptions = KeyboardOptions(
+      keyboardType = KeyboardType.Text,
+      imeAction = ImeAction.Done
+    ),
+    isError = lastNameError !== null,
+    supportingText = {
+      lastNameError?.let {
+        Text(text = it)
+      }
+    }
+  )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun FirstNameTextField(
+  firstName: String,
+  onFirstNameChanged: (String) -> Unit,
+  firstNameError: String?,
+  modifier: Modifier = Modifier,
+) {
+  TextField(
+    modifier = modifier.fillMaxWidth(),
+    value = firstName,
+    onValueChange = onFirstNameChanged,
+    label = { Text(text = "First name") },
+    leadingIcon = {
+      Icon(
+        imageVector = Icons.Filled.Person,
+        contentDescription = "First name"
+      )
+    },
+    maxLines = 1,
+    singleLine = true,
+    keyboardOptions = KeyboardOptions(
+      keyboardType = KeyboardType.Text,
+      imeAction = ImeAction.Next
+    ),
+    isError = firstNameError !== null,
+    supportingText = {
+      firstNameError?.let {
+        Text(text = it)
+      }
+    }
+  )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun EmailTextField(
+  email: String,
+  onEmailChanged: (String) -> Unit,
+  emailError: String?,
+  modifier: Modifier = Modifier,
+) {
+  TextField(
+    modifier = modifier.fillMaxWidth(),
+    value = email,
+    onValueChange = onEmailChanged,
+    label = { Text(text = "Email") },
+    leadingIcon = {
+      Icon(
+        imageVector = Icons.Filled.Email,
+        contentDescription = "Email"
+      )
+    },
+    maxLines = 1,
+    singleLine = true,
+    keyboardOptions = KeyboardOptions(
+      keyboardType = KeyboardType.Email,
+      imeAction = ImeAction.Next
+    ),
+    isError = emailError !== null,
+    supportingText = {
+      emailError?.let {
+        Text(text = it)
+      }
+    }
+  )
 }
 
 @Preview(

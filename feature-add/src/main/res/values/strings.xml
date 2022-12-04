@@ -9,4 +9,8 @@
   <string name="user_not_found_error_message">User not found</string>
   <string name="validation_failed_error_message">Validation failed</string>
   <string name="add_user_success">Added user successfully</string>
+
+  <string name="invalid_email">Invalid email</string>
+  <string name="too_short_first_name">Too short first name</string>
+  <string name="too_short_last_name">Too short last name</string>
 </resources>
