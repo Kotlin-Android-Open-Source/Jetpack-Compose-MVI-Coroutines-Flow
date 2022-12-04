@@ -139,17 +139,17 @@ internal fun AddNewUserRoute(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun ConfigAppBar(
-  currentOnBackClickState: State<() -> Unit>,
+  onBackClickState: State<() -> Unit>,
   configAppBar: ConfigAppBar
 ) {
   val title = stringResource(id = R.string.add_new_user)
   val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
-  val appBarState = remember(colors) {
+  val appBarState = remember(colors, onBackClickState) {
     AppBarState(
       title = title,
       actions = {},
       navigationIcon = {
-        IconButton(onClick = { currentOnBackClickState.value() }) {
+        IconButton(onClick = { onBackClickState.value() }) {
           Icon(
             imageVector = Icons.Filled.ArrowBack,
             contentDescription = "Back"
