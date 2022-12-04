@@ -38,7 +38,6 @@ class UserRepositoryImplRealAPITest : KoinTest {
           object : AppCoroutineDispatchers {
             override val main: CoroutineDispatcher get() = Main
             override val io: CoroutineDispatcher get() = IO
-            override val mainImmediate: CoroutineDispatcher get() = Main.immediate
             override val default: CoroutineDispatcher get() = IO
           }
         }

@@ -44,5 +44,8 @@ dependencies {
   implementation(deps.lifecycle.runtimeKtx)
   implementation(deps.androidx.material)
 
+  implementation(deps.coroutines.core)
+  implementation(deps.coroutines.android)
+
   addUnitTest()
 }

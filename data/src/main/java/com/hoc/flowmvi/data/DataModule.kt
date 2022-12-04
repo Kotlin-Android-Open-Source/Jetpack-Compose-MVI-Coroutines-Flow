@@ -84,7 +84,7 @@ internal abstract class DataModule {
 
     @Provides
     @BaseUrl
-    fun baseUrl(): String = "https://mvi-coroutines-flow-server.herokuapp.com/"
+    fun baseUrl(): String = "https://mvi-coroutines-flow-server.onrender.com/"
 
     @OptIn(ExperimentalStdlibApi::class)
     @Provides

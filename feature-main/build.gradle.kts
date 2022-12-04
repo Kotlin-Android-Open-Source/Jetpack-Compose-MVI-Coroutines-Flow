@@ -51,7 +51,7 @@ dependencies {
   implementation(mviBase)
   implementation(uiTheme)
 
-  implementationCompose()
+  implementationCompose(includeMaterial2 = true)
   implementation(deps.immutableCollections)
 
   implementation(deps.androidx.appCompat)

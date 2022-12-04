@@ -1,12 +1,14 @@
 package com.hoc.flowmvi.mvi_base
 
 import android.os.Build
+import android.os.Looper
 import androidx.annotation.CallSuper
+import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hoc.flowmvi.core.dispatchers.AppCoroutineDispatchers
+import com.hoc.flowmvi.core_ui.debugCheckImmediateMainDispatcher
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,14 +18,18 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.LazyThreadSafetyMode.PUBLICATION
-import kotlin.coroutines.ContinuationInterceptor
 
-abstract class AbstractMviViewModel<I : MviIntent, S : MviViewState, E : MviSingleEvent>(
-  private val appCoroutineDispatchers: AppCoroutineDispatchers,
-) :
+private fun debugCheckMainThread() {
+  if (BuildConfig.DEBUG) {
+    check(Looper.getMainLooper() === Looper.myLooper()) {
+      "Expected to be called on the main thread but was " + Thread.currentThread().name
+    }
+  }
+}
+
+abstract class AbstractMviViewModel<I : MviIntent, S : MviViewState, E : MviSingleEvent> :
   MviViewModel<I, S, E>, ViewModel() {
   protected val logTag by lazy(PUBLICATION) {
     this::class.java.simpleName.let { tag: String ->
@@ -37,25 +43,32 @@ abstract class AbstractMviViewModel<I : MviIntent, S : MviViewState, E : MviSing
   }
 
   private val eventChannel = Channel<E>(Channel.UNLIMITED)
-  private val intentMutableFlow = MutableSharedFlow<I>(extraBufferCapacity = SubscriberBufferSize)
+  private val intentMutableFlow = MutableSharedFlow<I>(extraBufferCapacity = Int.MAX_VALUE)
 
-  final override val singleEvent: Flow<E> get() = eventChannel.receiveAsFlow()
-  final override suspend fun processIntent(intent: I) = intentMutableFlow.emit(intent)
+  final override val singleEvent: Flow<E> = eventChannel.receiveAsFlow()
+
+  @MainThread
+  final override suspend fun processIntent(intent: I) {
+    debugCheckMainThread()
+    debugCheckImmediateMainDispatcher()
+    check(intentMutableFlow.tryEmit(intent)) { "Failed to emit intent: $intent" }
+    Timber.tag(logTag).d("processIntent: $intent")
+  }
 
   @CallSuper
   override fun onCleared() {
     super.onCleared()
     eventChannel.close()
+    Timber.tag(logTag).d("onCleared")
   }
 
   // Send event and access intent flow.
 
   protected suspend fun sendEvent(event: E) {
-    if (currentCoroutineContext()[ContinuationInterceptor] === appCoroutineDispatchers.mainImmediate) {
-      eventChannel.send(event)
-    } else {
-      withContext(appCoroutineDispatchers.mainImmediate) { eventChannel.send(event) }
-    }
+    debugCheckMainThread()
+    debugCheckImmediateMainDispatcher()
+    eventChannel.trySendBlocking(event).getOrThrow()
+    Timber.tag(logTag).d("sendEvent: event=$event")
   }
 
   protected val intentFlow: SharedFlow<I> get() = intentMutableFlow
@@ -72,16 +85,6 @@ abstract class AbstractMviViewModel<I : MviIntent, S : MviViewState, E : MviSing
     stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
   private companion object {
-    /**
-     * The buffer size that will be allocated by [kotlinx.coroutines.flow.MutableSharedFlow].
-     * If it falls behind by more than 64 state updates, it will start suspending.
-     * Slow consumers should consider using `stateFlow.buffer(onBufferOverflow = BufferOverflow.DROP_OLDEST)`.
-     *
-     * The internally allocated buffer is replay + extraBufferCapacity but always allocates 2^n space.
-     * We use replay=0 so buffer = 64.
-     */
-    private const val SubscriberBufferSize = 64
-
     private const val MAX_TAG_LENGTH = 23
   }
 }

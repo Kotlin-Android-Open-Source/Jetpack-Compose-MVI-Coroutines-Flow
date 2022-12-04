@@ -13,8 +13,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.hoc.flowmvi.core_ui.AppBarState
@@ -69,7 +71,7 @@ private fun JetpackComposeMVICoroutinesFlowApp(
 ) {
   val navController = appState.navController
   val snackbarHostState = remember { SnackbarHostState() }
-  val (appBarState, setAppBarState) = remember { mutableStateOf<AppBarState?>(null) }
+  var appBarState by remember { mutableStateOf<AppBarState?>(null) }
 
   Scaffold(
     snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -91,12 +93,12 @@ private fun JetpackComposeMVICoroutinesFlowApp(
         startDestination = startScreen.route
       ) {
         usersListScreen(
-          configAppBar = setAppBarState,
+          configAppBar = { appBarState = it },
           navigateToAddUser = { navController.navigateToAddNewUser() }
         )
 
         addNewUserScreen(
-          configAppBar = setAppBarState,
+          configAppBar = { appBarState = it },
           onBackClick = appState::onBackClick
         )
       }

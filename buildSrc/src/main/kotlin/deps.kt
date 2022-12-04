@@ -130,6 +130,7 @@ inline val PDsS.androidLib: PDS get() = id("com.android.library")
 inline val PDsS.kotlinAndroid: PDS get() = kotlin("android")
 inline val PDsS.kotlin: PDS get() = kotlin("jvm")
 inline val PDsS.kotlinKapt: PDS get() = kotlin("kapt")
+inline val PDsS.kotlinParcelize: PDS get() = id("kotlin-parcelize")
 inline val PDsS.daggerHiltAndroid: PDS get() = id("dagger.hilt.android.plugin")
 
 inline val DependencyHandler.domain get() = project(":domain")
@@ -144,7 +145,9 @@ inline val DependencyHandler.mviBase get() = project(":mvi-base")
 inline val DependencyHandler.mviTesting get() = project(":mvi-testing")
 inline val DependencyHandler.testUtils get() = project(":test-utils")
 
-fun DependencyHandler.implementationCompose() {
+fun DependencyHandler.implementationCompose(
+  includeMaterial2: Boolean = false,
+) {
   arrayOf(
     platform(deps.compose.bom),
     // activity compose
@@ -160,7 +163,10 @@ fun DependencyHandler.implementationCompose() {
     deps.compose.layout,
     deps.compose.foundation,
     deps.compose.ui,
-    deps.compose.material,
+    *(
+      if (includeMaterial2) arrayOf(deps.compose.material)
+      else emptyArray()
+      ),
     deps.compose.material3,
     deps.compose.materialIconsExtended,
     deps.compose.runtime,
