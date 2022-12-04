@@ -32,6 +32,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -68,7 +69,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 internal fun AddNewUserRoute(
   configAppBar: ConfigAppBar,
@@ -76,30 +77,8 @@ internal fun AddNewUserRoute(
   modifier: Modifier = Modifier,
   viewModel: AddVM = hiltViewModel(),
 ) {
-  val currentOnBackClick by rememberUpdatedState(onBackClick)
-
-  val title = stringResource(id = R.string.add_new_user)
-  val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
-  val appBarState = remember(colors) {
-    AppBarState(
-      title = title,
-      actions = {},
-      navigationIcon = {
-        IconButton(onClick = { currentOnBackClick() }) {
-          Icon(
-            imageVector = Icons.Filled.ArrowBack,
-            contentDescription = "Back"
-          )
-        }
-      },
-      colors = colors
-    )
-  }
-  OnLifecycleEvent(configAppBar, appBarState) { _, event ->
-    if (event == Lifecycle.Event.ON_START) {
-      configAppBar(appBarState)
-    }
-  }
+  val currentOnBackClickState = rememberUpdatedState(onBackClick)
+  ConfigAppBar(currentOnBackClickState, configAppBar)
 
   val intentChannel = remember { Channel<ViewIntent>(Channel.UNLIMITED) }
   LaunchedEffect(Unit) {
@@ -133,7 +112,7 @@ internal fun AddNewUserRoute(
         }
         scope.launch {
           delay(200)
-          currentOnBackClick()
+          currentOnBackClickState.value()
         }
       }
     }
@@ -154,6 +133,36 @@ internal fun AddNewUserRoute(
     onLastNameChanged = { dispatch(ViewIntent.LastNameChanged(it)) },
     onSubmit = { dispatch(ViewIntent.Submit) }
   )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ConfigAppBar(
+  currentOnBackClickState: State<() -> Unit>,
+  configAppBar: ConfigAppBar
+) {
+  val title = stringResource(id = R.string.add_new_user)
+  val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
+  val appBarState = remember(colors) {
+    AppBarState(
+      title = title,
+      actions = {},
+      navigationIcon = {
+        IconButton(onClick = { currentOnBackClickState.value() }) {
+          Icon(
+            imageVector = Icons.Filled.ArrowBack,
+            contentDescription = "Back"
+          )
+        }
+      },
+      colors = colors
+    )
+  }
+  OnLifecycleEvent(configAppBar, appBarState) { _, event ->
+    if (event == Lifecycle.Event.ON_START) {
+      configAppBar(appBarState)
+    }
+  }
 }
 
 @Composable

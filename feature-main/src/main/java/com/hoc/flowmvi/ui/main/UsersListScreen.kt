@@ -62,28 +62,7 @@ internal fun UsersListRoute(
   modifier: Modifier = Modifier,
   viewModel: MainVM = hiltViewModel(),
 ) {
-  val title = stringResource(id = R.string.app_name)
-  val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
-  val appBarState = remember(colors) {
-    AppBarState(
-      title = title,
-      actions = {
-        IconButton(onClick = navigateToAddUser) {
-          Icon(
-            imageVector = Icons.Default.Add,
-            contentDescription = "Add new user",
-          )
-        }
-      },
-      navigationIcon = {},
-      colors = colors,
-    )
-  }
-  OnLifecycleEvent(configAppBar, appBarState) { _, event ->
-    if (event == Lifecycle.Event.ON_START) {
-      configAppBar(appBarState)
-    }
-  }
+  ConfigAppBar(navigateToAddUser, configAppBar)
 
   val intentChannel = remember { Channel<ViewIntent>(Channel.UNLIMITED) }
   LaunchedEffect(Unit) {
@@ -158,6 +137,36 @@ internal fun UsersListRoute(
     refresh = { dispatch(ViewIntent.Refresh) },
     removeItem = { setShouldBeDeletedItem(it) },
   )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ConfigAppBar(
+  navigateToAddUser: () -> Unit,
+  configAppBar: ConfigAppBar
+) {
+  val title = stringResource(id = R.string.app_name)
+  val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
+  val appBarState = remember(colors) {
+    AppBarState(
+      title = title,
+      actions = {
+        IconButton(onClick = navigateToAddUser) {
+          Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = "Add new user",
+          )
+        }
+      },
+      navigationIcon = {},
+      colors = colors,
+    )
+  }
+  OnLifecycleEvent(configAppBar, appBarState) { _, event ->
+    if (event == Lifecycle.Event.ON_START) {
+      configAppBar(appBarState)
+    }
+  }
 }
 
 @Composable
