@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
@@ -312,6 +313,11 @@ private fun LastNameTextField(
       lastNameError?.let {
         Text(text = it)
       }
+    },
+    trailingIcon = {
+      if (lastNameError !== null) {
+        ErrorIcon()
+      }
     }
   )
 }
@@ -345,6 +351,11 @@ private fun FirstNameTextField(
     supportingText = {
       firstNameError?.let {
         Text(text = it)
+      }
+    },
+    trailingIcon = {
+      if (firstNameError !== null) {
+        ErrorIcon()
       }
     }
   )
@@ -380,7 +391,21 @@ private fun EmailTextField(
       emailError?.let {
         Text(text = it)
       }
+    },
+    trailingIcon = {
+      if (emailError !== null) {
+        ErrorIcon()
+      }
     }
+  )
+}
+
+@Composable
+private fun ErrorIcon() {
+  Icon(
+    imageVector = Icons.Filled.Error,
+    contentDescription = "Error",
+    tint = MaterialTheme.colorScheme.error,
   )
 }
 
