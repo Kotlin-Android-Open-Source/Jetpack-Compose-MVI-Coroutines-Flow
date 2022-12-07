@@ -167,8 +167,8 @@ class AddVM @Inject constructor(
     map { validated ->
       PartialStateChange.Errors(
         validated?.fold(
-          { it.toPersistentHashSet() },
-          { persistentHashSetOf() }
+          fe = { it.toPersistentHashSet() },
+          fa = { persistentHashSetOf() }
         ) ?: persistentHashSetOf()
       )
     }
