@@ -1,5 +1,6 @@
 package com.hoc.flowmvi.ui.main
 
+import androidx.annotation.MainThread
 import androidx.compose.runtime.Immutable
 import arrow.core.Either
 import com.hoc.flowmvi.domain.model.User
@@ -11,6 +12,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
+import kotlin.LazyThreadSafetyMode.NONE
 
 @Immutable
 data class UserItem(
@@ -21,7 +23,8 @@ data class UserItem(
   val lastName: String,
   val isDeleting: Boolean
 ) {
-  val fullName get() = "$firstName $lastName"
+  @get:MainThread
+  val fullName by lazy(NONE) { "$firstName $lastName" }
 
   constructor(domain: User) : this(
     id = domain.id,
