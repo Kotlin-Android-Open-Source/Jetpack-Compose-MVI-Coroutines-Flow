@@ -10,6 +10,7 @@ import com.hoc.flowmvi.mvi_base.MviIntent
 import com.hoc.flowmvi.mvi_base.MviSingleEvent
 import com.hoc.flowmvi.mvi_base.MviViewState
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
@@ -18,9 +19,9 @@ import kotlinx.parcelize.TypeParceler
 internal object UserValidationErrorPersistentSetParceler :
   Parceler<PersistentSet<UserValidationError>> {
   override fun create(parcel: Parcel) =
-    persistentHashSetOf<UserValidationError>().apply {
+    persistentHashSetOf<UserValidationError>().mutate { errors ->
       repeat(parcel.readInt()) {
-        add(UserValidationError.valueOf(parcel.readString()!!))
+        errors.add(UserValidationError.valueOf(parcel.readString()!!))
       }
     }
 
@@ -59,6 +60,7 @@ data class ViewState(
   }
 }
 
+@Immutable
 sealed interface ViewIntent : MviIntent {
   data class EmailChanged(val email: String) : ViewIntent
   data class FirstNameChanged(val firstName: String) : ViewIntent
@@ -76,10 +78,10 @@ internal sealed interface PartialStateChange {
       else viewState.copy(errors = errors)
   }
 
-  sealed class AddUser : PartialStateChange {
-    object Loading : AddUser()
-    data class AddUserSuccess(val user: User) : AddUser()
-    data class AddUserFailure(val user: User, val error: UserError) : AddUser()
+  sealed interface AddUser : PartialStateChange {
+    object Loading : AddUser
+    data class AddUserSuccess(val user: User) : AddUser
+    data class AddUserFailure(val user: User, val error: UserError) : AddUser
 
     override fun reduce(viewState: ViewState): ViewState {
       return when (this) {
@@ -90,21 +92,30 @@ internal sealed interface PartialStateChange {
     }
   }
 
-  sealed class FirstChange : PartialStateChange {
-    object EmailChangedFirstTime : FirstChange()
-    object FirstNameChangedFirstTime : FirstChange()
-    object LastNameChangedFirstTime : FirstChange()
+  sealed interface FirstChange : PartialStateChange {
+    object EmailChangedFirstTime : FirstChange
+    object FirstNameChangedFirstTime : FirstChange
+    object LastNameChangedFirstTime : FirstChange
 
     override fun reduce(viewState: ViewState): ViewState {
       return when (this) {
-        EmailChangedFirstTime -> viewState.copy(emailChanged = true)
-        FirstNameChangedFirstTime -> viewState.copy(firstNameChanged = true)
-        LastNameChangedFirstTime -> viewState.copy(lastNameChanged = true)
+        EmailChangedFirstTime -> {
+          if (viewState.emailChanged) viewState
+          else viewState.copy(emailChanged = true)
+        }
+        FirstNameChangedFirstTime -> {
+          if (viewState.firstNameChanged) viewState
+          else viewState.copy(firstNameChanged = true)
+        }
+        LastNameChangedFirstTime -> {
+          if (viewState.lastNameChanged) viewState
+          else viewState.copy(lastNameChanged = true)
+        }
       }
     }
   }
 
-  sealed class FormValue : PartialStateChange {
+  sealed interface FormValue : PartialStateChange {
     override fun reduce(viewState: ViewState): ViewState {
       return when (this) {
         is EmailChanged -> {
@@ -122,9 +133,9 @@ internal sealed interface PartialStateChange {
       }
     }
 
-    data class EmailChanged(val email: String?) : FormValue()
-    data class FirstNameChanged(val firstName: String?) : FormValue()
-    data class LastNameChanged(val lastName: String?) : FormValue()
+    data class EmailChanged(val email: String?) : FormValue
+    data class FirstNameChanged(val firstName: String?) : FormValue
+    data class LastNameChanged(val lastName: String?) : FormValue
   }
 }
 
