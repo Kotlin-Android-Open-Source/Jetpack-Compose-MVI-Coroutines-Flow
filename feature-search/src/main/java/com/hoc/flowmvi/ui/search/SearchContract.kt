@@ -1,6 +1,7 @@
 package com.hoc.flowmvi.ui.search
 
 import android.os.Bundle
+import androidx.compose.runtime.Immutable
 import androidx.core.os.bundleOf
 import com.hoc.flowmvi.domain.model.User
 import com.hoc.flowmvi.domain.model.UserError
@@ -9,7 +10,11 @@ import com.hoc.flowmvi.mvi_base.MviSingleEvent
 import com.hoc.flowmvi.mvi_base.MviViewState
 import com.hoc.flowmvi.mvi_base.MviViewStateSaver
 import dev.ahmedmourad.nocopy.annotations.NoCopy
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
+@Immutable
 @Suppress("DataClassPrivateConstructor")
 @NoCopy
 data class UserItem private constructor(
@@ -30,13 +35,15 @@ data class UserItem private constructor(
   }
 }
 
+@Immutable
 sealed interface ViewIntent : MviIntent {
   data class Search(val query: String) : ViewIntent
   object Retry : ViewIntent
 }
 
+@Immutable
 data class ViewState(
-  val users: List<UserItem>,
+  val users: ImmutableList<UserItem>,
   val isLoading: Boolean,
   val error: UserError?,
   val submittedQuery: String,
@@ -47,7 +54,7 @@ data class ViewState(
 
     fun initial(originalQuery: String): ViewState {
       return ViewState(
-        users = emptyList(),
+        users = persistentListOf(),
         isLoading = false,
         error = null,
         submittedQuery = "",
@@ -78,17 +85,17 @@ internal sealed interface PartialStateChange {
       isLoading = false,
       error = error,
       submittedQuery = submittedQuery,
-      users = emptyList()
+      users = persistentListOf()
     )
     Loading -> state.copy(
       isLoading = true,
       error = null,
-      users = emptyList()
+      users = persistentListOf()
     )
     is Success -> state.copy(
       isLoading = false,
       error = null,
-      users = users,
+      users = users.toImmutableList(),
       submittedQuery = submittedQuery,
     )
     is QueryChange -> {
