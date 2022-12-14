@@ -16,6 +16,9 @@ buildscript {
     classpath("com.diffplug.spotless:spotless-plugin-gradle:6.12.0")
     classpath("com.google.dagger:hilt-android-gradle-plugin:${deps.daggerHilt.version}")
     classpath("com.github.ben-manes:gradle-versions-plugin:0.44.0")
+    classpath("org.jacoco:org.jacoco.core:0.8.8")
+    classpath("com.vanniktech:gradle-android-junit-jacoco-plugin:0.17.0-SNAPSHOT")
+    classpath("dev.ahmedmourad.nocopy:nocopy-gradle-plugin:1.4.0")
   }
 }
 

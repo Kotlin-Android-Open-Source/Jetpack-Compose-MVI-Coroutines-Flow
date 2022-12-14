@@ -19,6 +19,7 @@
             <option value="$PROJECT_DIR$/domain" />
             <option value="$PROJECT_DIR$/feature-add" />
             <option value="$PROJECT_DIR$/feature-main" />
+            <option value="$PROJECT_DIR$/feature-search" />
             <option value="$PROJECT_DIR$/mvi/mvi-base" />
             <option value="$PROJECT_DIR$/mvi/mvi-testing" />
             <option value="$PROJECT_DIR$/test-utils" />

@@ -17,6 +17,13 @@ interface MviViewModel<I : MviIntent, S : MviViewState, E : MviSingleEvent> {
 
   val singleEvent: Flow<E>
 
+  /**
+   * Must be called in [kotlinx.coroutines.Dispatchers.Main.immediate],
+   * otherwise it will throw an exception.
+   *
+   * If you want to process an intent from other [kotlinx.coroutines.CoroutineDispatcher],
+   * use `withContext(Dispatchers.Main.immediate) { processIntent(intent) }`.
+   */
   @MainThread
   suspend fun processIntent(intent: I)
 }
