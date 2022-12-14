@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,10 +60,15 @@ import kotlinx.coroutines.withContext
 internal fun UsersListRoute(
   configAppBar: ConfigAppBar,
   navigateToAddUser: () -> Unit,
+  navigateToSearchUser: () -> Unit,
   modifier: Modifier = Modifier,
   viewModel: MainVM = hiltViewModel(),
 ) {
-  ConfigAppBar(navigateToAddUser, configAppBar)
+  ConfigAppBar(
+    navigateToAddUser = navigateToAddUser,
+    navigateToSearchUser = navigateToSearchUser,
+    configAppBar = configAppBar
+  )
 
   val intentChannel = remember { Channel<ViewIntent>(Channel.UNLIMITED) }
   LaunchedEffect(Unit) {
@@ -143,18 +149,30 @@ internal fun UsersListRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun ConfigAppBar(
   navigateToAddUser: () -> Unit,
+  navigateToSearchUser: () -> Unit,
   configAppBar: ConfigAppBar
 ) {
-  val title = stringResource(id = R.string.app_name)
+  val title = stringResource(id = R.string.users_list_title)
   val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
-  val appBarState = remember(colors) {
+
+  val currentNavigateToAddUser by rememberUpdatedState(navigateToAddUser)
+  val currentNavigateToSearchUser by rememberUpdatedState(navigateToSearchUser)
+
+  val appBarState = remember(colors, title) {
     AppBarState(
       title = title,
       actions = {
-        IconButton(onClick = navigateToAddUser) {
+        IconButton(onClick = { currentNavigateToAddUser() }) {
           Icon(
             imageVector = Icons.Default.Add,
             contentDescription = "Add new user",
+          )
+        }
+
+        IconButton(onClick = { currentNavigateToSearchUser() }) {
+          Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = "Search user",
           )
         }
       },
@@ -162,6 +180,7 @@ private fun ConfigAppBar(
       colors = colors,
     )
   }
+
   OnLifecycleEvent(configAppBar, appBarState) { _, event ->
     if (event == Lifecycle.Event.ON_START) {
       configAppBar(appBarState)

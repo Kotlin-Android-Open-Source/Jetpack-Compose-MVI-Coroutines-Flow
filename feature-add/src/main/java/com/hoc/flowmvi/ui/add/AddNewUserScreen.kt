@@ -144,6 +144,7 @@ private fun ConfigAppBar(
 ) {
   val title = stringResource(id = R.string.add_new_user)
   val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
+
   val appBarState = remember(colors, onBackClickState) {
     AppBarState(
       title = title,
@@ -159,6 +160,7 @@ private fun ConfigAppBar(
       colors = colors
     )
   }
+
   OnLifecycleEvent(configAppBar, appBarState) { _, event ->
     if (event == Lifecycle.Event.ON_START) {
       configAppBar(appBarState)

@@ -24,6 +24,8 @@ import com.hoc.flowmvi.core_ui.ProvideSnackbarHostState
 import com.hoc.flowmvi.ui.add.navigation.addNewUserScreen
 import com.hoc.flowmvi.ui.add.navigation.navigateToAddNewUser
 import com.hoc.flowmvi.ui.main.navigation.usersListScreen
+import com.hoc.flowmvi.ui.search.navigation.navigateToSearchUser
+import com.hoc.flowmvi.ui.search.navigation.searchUserScreen
 import com.hoc.flowmvi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -94,10 +96,16 @@ private fun JetpackComposeMVICoroutinesFlowApp(
       ) {
         usersListScreen(
           configAppBar = { appBarState = it },
-          navigateToAddUser = { navController.navigateToAddNewUser() }
+          navigateToAddUser = navController::navigateToAddNewUser,
+          navigateToSearchUser = navController::navigateToSearchUser
         )
 
         addNewUserScreen(
+          configAppBar = { appBarState = it },
+          onBackClick = appState::onBackClick
+        )
+
+        searchUserScreen(
           configAppBar = { appBarState = it },
           onBackClick = appState::onBackClick
         )

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="users_list_title">Compose MVI Flow</string>
+
   <string name="add_user">Add user</string>
   <string name="delete">Delete</string>
   <string name="delete_user_confirmaion">Do you want to delete "%s"? This action cannot be undone.</string>
