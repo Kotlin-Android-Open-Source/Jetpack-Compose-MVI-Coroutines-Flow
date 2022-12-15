@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
@@ -134,6 +135,15 @@ internal fun UsersListRoute(
         setShouldBeDeletedItem(null)
       },
     )
+  }
+  DisposableEffect(viewState.userItems) {
+    shouldBeDeletedItem?.let { item ->
+      // clear shouldBeDeletedItem if it's not in userItems
+      if (viewState.userItems.none { it.id == item.id }) {
+        setShouldBeDeletedItem(null)
+      }
+    }
+    onDispose { }
   }
 
   UsersListContent(
