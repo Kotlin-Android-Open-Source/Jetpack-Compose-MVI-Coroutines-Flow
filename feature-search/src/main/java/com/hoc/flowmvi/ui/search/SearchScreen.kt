@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import arrow.core.valueOr
 import com.hoc.flowmvi.core_ui.AppBarState
+import com.hoc.flowmvi.core_ui.AppBarTextField
 import com.hoc.flowmvi.core_ui.ConfigAppBar
 import com.hoc.flowmvi.core_ui.LoadingIndicator
 import com.hoc.flowmvi.core_ui.LocalSnackbarHostState

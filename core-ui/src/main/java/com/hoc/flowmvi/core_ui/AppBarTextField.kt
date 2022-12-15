@@ -1,4 +1,4 @@
-package com.hoc.flowmvi.ui.search
+package com.hoc.flowmvi.core_ui
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
