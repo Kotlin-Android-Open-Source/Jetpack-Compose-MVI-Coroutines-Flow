@@ -160,7 +160,7 @@ private fun ConfigAppBar(
 
   val appBarState = remember(colors, title) {
     AppBarState(
-      title = title,
+      title = { Text(text = title) },
       actions = {
         IconButton(onClick = { currentNavigateToAddUser() }) {
           Icon(

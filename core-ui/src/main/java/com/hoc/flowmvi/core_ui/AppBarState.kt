@@ -9,7 +9,7 @@ import androidx.compose.runtime.Stable
 @OptIn(ExperimentalMaterial3Api::class)
 @Stable
 data class AppBarState(
-  val title: String?,
+  val title: @Composable () -> Unit,
   val actions: @Composable RowScope.() -> Unit,
   val navigationIcon: @Composable () -> Unit,
   val colors: TopAppBarColors,

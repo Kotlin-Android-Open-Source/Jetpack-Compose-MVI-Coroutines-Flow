@@ -10,7 +10,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,18 +44,14 @@ class MainActivity : AppCompatActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JetpackComposeMVICoroutinesFlowAppBar(
-  title: String?,
+  title: @Composable () -> Unit,
   navigationIcon: @Composable () -> Unit,
   actions: @Composable RowScope.() -> Unit,
   colors: TopAppBarColors,
   modifier: Modifier = Modifier
 ) {
   CenterAlignedTopAppBar(
-    title = {
-      if (title != null) {
-        Text(text = title)
-      }
-    },
+    title = title,
     modifier = modifier,
     navigationIcon = navigationIcon,
     actions = actions,

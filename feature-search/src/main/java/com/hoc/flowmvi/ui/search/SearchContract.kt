@@ -13,6 +13,7 @@ import dev.ahmedmourad.nocopy.annotations.NoCopy
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import javax.inject.Inject
 
 @Immutable
 @Suppress("DataClassPrivateConstructor")
@@ -63,7 +64,7 @@ data class ViewState(
     }
   }
 
-  class StateSaver : MviViewStateSaver<ViewState> {
+  class StateSaver @Inject constructor() : MviViewStateSaver<ViewState> {
     override fun ViewState.toBundle() = bundleOf(ORIGINAL_QUERY_KEY to originalQuery)
 
     override fun restore(bundle: Bundle?) = initial(

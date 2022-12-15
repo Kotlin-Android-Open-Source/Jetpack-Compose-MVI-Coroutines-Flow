@@ -8,6 +8,7 @@ import com.hoc081098.flowext.flatMapFirst
 import com.hoc081098.flowext.flowFromSuspend
 import com.hoc081098.flowext.startWith
 import com.hoc081098.flowext.takeUntil
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -25,13 +26,15 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.ExperimentalTime
 
-@FlowPreview
-@ExperimentalTime
-@ExperimentalCoroutinesApi
-class SearchVM(
+@OptIn(
+  FlowPreview::class,
+  ExperimentalCoroutinesApi::class,
+)
+@HiltViewModel
+class SearchVM @Inject constructor(
   private val searchUsersUseCase: SearchUsersUseCase,
   savedStateHandle: SavedStateHandle,
   private val stateSaver: ViewState.StateSaver,
@@ -70,15 +73,15 @@ class SearchVM(
       .shareWhileSubscribed()
 
     return merge(
+      // Query change
+      queryFlow
+        .map { PartialStateChange.QueryChange(it) },
       // Search change
       searchableQueryFlow
         .flatMapLatest(::executeSearch),
       // Retry change
       filterIsInstance<ViewIntent.Retry>()
         .toPartialStateChangeFlow(searchableQueryFlow),
-      // Query change
-      queryFlow
-        .map { PartialStateChange.QueryChange(it) },
     )
   }
 

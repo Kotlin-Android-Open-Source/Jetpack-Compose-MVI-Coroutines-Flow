@@ -147,7 +147,7 @@ private fun ConfigAppBar(
 
   val appBarState = remember(colors, onBackClickState) {
     AppBarState(
-      title = title,
+      title = { Text(title) },
       actions = {},
       navigationIcon = {
         IconButton(onClick = { onBackClickState.value() }) {
