@@ -1,4 +1,12 @@
 <resources>
   <string name="app_name">Compose MVI Coroutines Flow</string>
   <string name="retry">RETRY</string>
+
+  <string name="invalid_id_error_message">Invalid id</string>
+  <string name="network_error_error_message">Network error</string>
+  <string name="server_error_error_message">Server error</string>
+  <string name="unexpected_error_error_message">Unexpected error</string>
+  <string name="user_not_found_error_message">User not found</string>
+  <string name="validation_failed_error_message">Validation failed</string>
+  <string name="add_user_success">Added user successfully</string>
 </resources>

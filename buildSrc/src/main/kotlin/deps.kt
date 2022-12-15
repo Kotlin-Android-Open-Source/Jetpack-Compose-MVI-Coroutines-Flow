@@ -108,7 +108,6 @@ object deps {
 
   const val immutableCollections = "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
 
-  const val viewBindingDelegate = "com.github.hoc081098:ViewBindingDelegate:1.2.0"
   const val flowExt = "io.github.hoc081098:FlowExt:0.5.0"
   const val timber = "com.jakewharton.timber:timber:5.0.1"
 
@@ -132,6 +131,7 @@ inline val PDsS.kotlin: PDS get() = kotlin("jvm")
 inline val PDsS.kotlinKapt: PDS get() = kotlin("kapt")
 inline val PDsS.kotlinParcelize: PDS get() = id("kotlin-parcelize")
 inline val PDsS.daggerHiltAndroid: PDS get() = id("dagger.hilt.android.plugin")
+inline val PDsS.nocopyPlugin: PDS get() = id("dev.ahmedmourad.nocopy.nocopy-gradle-plugin")
 
 inline val DependencyHandler.domain get() = project(":domain")
 inline val DependencyHandler.core get() = project(":core")

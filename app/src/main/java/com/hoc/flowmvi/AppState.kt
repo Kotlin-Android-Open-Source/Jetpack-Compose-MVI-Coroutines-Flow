@@ -7,10 +7,9 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.hoc.flowmvi.Screen.AddNewUser
-import com.hoc.flowmvi.Screen.UsersList
 import com.hoc.flowmvi.ui.add.navigation.AddNewUserNavigationRoute
 import com.hoc.flowmvi.ui.main.navigation.UsersListNavigationRoute
+import com.hoc.flowmvi.ui.search.navigation.SearchUserNavigationRoute
 
 @Composable
 fun rememberJetpackComposeMVICoroutinesFlowApp(
@@ -28,7 +27,7 @@ enum class Screen {
     get() = when (this) {
       UsersList -> UsersListNavigationRoute
       AddNewUser -> AddNewUserNavigationRoute
-      SearchUsers -> TODO()
+      SearchUsers -> SearchUserNavigationRoute
     }
 
   companion object {
@@ -50,9 +49,10 @@ class JetpackComposeMVICoroutinesFlowAppState(
 
   val currentScreen: Screen?
     @Composable get() = when (currentDestination?.route) {
-      UsersListNavigationRoute -> UsersList
-      AddNewUserNavigationRoute -> AddNewUser
-      else -> TODO()
+      UsersListNavigationRoute -> Screen.UsersList
+      AddNewUserNavigationRoute -> Screen.AddNewUser
+      SearchUserNavigationRoute -> Screen.SearchUsers
+      else -> null
     }
 
   fun onNavigateUp() {

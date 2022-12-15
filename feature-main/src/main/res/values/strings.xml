@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="users_list_title">Compose MVI Flow</string>
+
   <string name="add_user">Add user</string>
   <string name="delete">Delete</string>
   <string name="delete_user_confirmaion">Do you want to delete "%s"? This action cannot be undone.</string>
-
-  <string name="invalid_id_error_message">Invalid id</string>
-  <string name="network_error_error_message">Network error</string>
-  <string name="server_error_error_message">Server error</string>
-  <string name="unexpected_error_error_message">Unexpected error</string>
-  <string name="user_not_found_error_message">User not found</string>
-  <string name="validation_failed_error_message">Validation failed</string>
 </resources>

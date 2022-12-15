@@ -47,15 +47,15 @@ class MainVM @Inject constructor(
     val initialVS = ViewState.initial()
 
     viewState = merge(
-      intentFlow.filterIsInstance<ViewIntent.Initial>().take(1),
-      intentFlow.filterNot { it is ViewIntent.Initial }
+      intentSharedFlow.filterIsInstance<ViewIntent.Initial>().take(1),
+      intentSharedFlow.filterNot { it is ViewIntent.Initial }
     )
       .shareWhileSubscribed()
       .toPartialStateChangeFlow()
-      .log("PartialStateChange")
+      .debugLog("PartialStateChange")
       .sendSingleEvent()
       .scan(initialVS) { vs, change -> change.reduce(vs) }
-      .log("ViewState")
+      .debugLog("ViewState")
       .stateIn(
         viewModelScope,
         SharingStarted.Eagerly,

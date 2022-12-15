@@ -10,7 +10,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +23,8 @@ import com.hoc.flowmvi.core_ui.ProvideSnackbarHostState
 import com.hoc.flowmvi.ui.add.navigation.addNewUserScreen
 import com.hoc.flowmvi.ui.add.navigation.navigateToAddNewUser
 import com.hoc.flowmvi.ui.main.navigation.usersListScreen
+import com.hoc.flowmvi.ui.search.navigation.navigateToSearchUser
+import com.hoc.flowmvi.ui.search.navigation.searchUserScreen
 import com.hoc.flowmvi.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,18 +44,14 @@ class MainActivity : AppCompatActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JetpackComposeMVICoroutinesFlowAppBar(
-  title: String?,
+  title: @Composable () -> Unit,
   navigationIcon: @Composable () -> Unit,
   actions: @Composable RowScope.() -> Unit,
   colors: TopAppBarColors,
   modifier: Modifier = Modifier
 ) {
   CenterAlignedTopAppBar(
-    title = {
-      if (title != null) {
-        Text(text = title)
-      }
-    },
+    title = title,
     modifier = modifier,
     navigationIcon = navigationIcon,
     actions = actions,
@@ -94,10 +91,16 @@ private fun JetpackComposeMVICoroutinesFlowApp(
       ) {
         usersListScreen(
           configAppBar = { appBarState = it },
-          navigateToAddUser = { navController.navigateToAddNewUser() }
+          navigateToAddUser = navController::navigateToAddNewUser,
+          navigateToSearchUser = navController::navigateToSearchUser
         )
 
         addNewUserScreen(
+          configAppBar = { appBarState = it },
+          onBackClick = appState::onBackClick
+        )
+
+        searchUserScreen(
           configAppBar = { appBarState = it },
           onBackClick = appState::onBackClick
         )

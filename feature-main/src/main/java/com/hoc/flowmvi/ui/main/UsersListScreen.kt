@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
@@ -59,10 +61,15 @@ import kotlinx.coroutines.withContext
 internal fun UsersListRoute(
   configAppBar: ConfigAppBar,
   navigateToAddUser: () -> Unit,
+  navigateToSearchUser: () -> Unit,
   modifier: Modifier = Modifier,
   viewModel: MainVM = hiltViewModel(),
 ) {
-  ConfigAppBar(navigateToAddUser, configAppBar)
+  ConfigAppBar(
+    navigateToAddUser = navigateToAddUser,
+    navigateToSearchUser = navigateToSearchUser,
+    configAppBar = configAppBar
+  )
 
   val intentChannel = remember { Channel<ViewIntent>(Channel.UNLIMITED) }
   LaunchedEffect(Unit) {
@@ -129,6 +136,15 @@ internal fun UsersListRoute(
       },
     )
   }
+  DisposableEffect(viewState.userItems) {
+    shouldBeDeletedItem?.let { item ->
+      // clear shouldBeDeletedItem if it's not in userItems
+      if (viewState.userItems.none { it.id == item.id }) {
+        setShouldBeDeletedItem(null)
+      }
+    }
+    onDispose { }
+  }
 
   UsersListContent(
     modifier = modifier,
@@ -143,18 +159,30 @@ internal fun UsersListRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun ConfigAppBar(
   navigateToAddUser: () -> Unit,
+  navigateToSearchUser: () -> Unit,
   configAppBar: ConfigAppBar
 ) {
-  val title = stringResource(id = R.string.app_name)
+  val title = stringResource(id = R.string.users_list_title)
   val colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
-  val appBarState = remember(colors) {
+
+  val currentNavigateToAddUser by rememberUpdatedState(navigateToAddUser)
+  val currentNavigateToSearchUser by rememberUpdatedState(navigateToSearchUser)
+
+  val appBarState = remember(colors, title) {
     AppBarState(
-      title = title,
+      title = { Text(text = title) },
       actions = {
-        IconButton(onClick = navigateToAddUser) {
+        IconButton(onClick = { currentNavigateToAddUser() }) {
           Icon(
             imageVector = Icons.Default.Add,
             contentDescription = "Add new user",
+          )
+        }
+
+        IconButton(onClick = { currentNavigateToSearchUser() }) {
+          Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = "Search user",
           )
         }
       },
@@ -162,6 +190,7 @@ private fun ConfigAppBar(
       colors = colors,
     )
   }
+
   OnLifecycleEvent(configAppBar, appBarState) { _, event ->
     if (event == Lifecycle.Event.ON_START) {
       configAppBar(appBarState)

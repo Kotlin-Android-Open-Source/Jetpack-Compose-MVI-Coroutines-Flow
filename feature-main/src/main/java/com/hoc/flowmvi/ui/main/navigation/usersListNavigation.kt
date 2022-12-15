@@ -21,11 +21,13 @@ fun NavController.navigateUsersList(navOptions: NavOptions? = null) =
 fun NavGraphBuilder.usersListScreen(
   configAppBar: ConfigAppBar,
   navigateToAddUser: () -> Unit,
+  navigateToSearchUser: () -> Unit,
 ) {
   composable(route = UsersListNavigationRoute) {
     UsersListRoute(
       configAppBar = configAppBar,
       navigateToAddUser = navigateToAddUser,
+      navigateToSearchUser = navigateToSearchUser,
     )
   }
 }
