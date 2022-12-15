@@ -117,16 +117,25 @@ internal sealed interface PartialStateChange {
 
     override fun reduce(viewState: ViewState) = when (this) {
       is Failure -> {
-        viewState.copy(
-          userItems = viewState.userItems.mutate { userItems ->
-            userItems.forEachIndexed { index, userItem ->
-              if (userItem.id == user.id) {
-                userItems[index] = userItem.copy(isDeleting = false)
-                return@mutate
+        // if the user is not found, remove it from the current list.
+        if (error is UserError.UserNotFound && error.id == user.id) {
+          viewState.copy(
+            userItems = viewState
+              .userItems
+              .removeAll { it.id == user.id }
+          )
+        } else {
+          viewState.copy(
+            userItems = viewState.userItems.mutate { userItems ->
+              userItems.forEachIndexed { index, userItem ->
+                if (userItem.id == user.id) {
+                  userItems[index] = userItem.copy(isDeleting = false)
+                  return@mutate
+                }
               }
             }
-          }
-        )
+          )
+        }
       }
       is Loading -> viewState.copy(
         userItems = viewState.userItems.mutate { userItems ->
