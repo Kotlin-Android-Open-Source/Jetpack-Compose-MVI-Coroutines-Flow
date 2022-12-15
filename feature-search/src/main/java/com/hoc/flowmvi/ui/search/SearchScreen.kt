@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.text.KeyboardActions
@@ -19,6 +21,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -190,7 +195,10 @@ private fun SearchContent(
 ) {
   UsersGrid(
     modifier = modifier,
-    userItems = viewState.users
+    userItems = viewState.users,
+    submittedQuery = viewState
+      .submittedQuery
+      .takeUnless { viewState.isLoading || viewState.submittedQuery.isBlank() }
   )
 
   AnimatedVisibility(
@@ -223,6 +231,7 @@ private fun SearchContent(
 @Composable
 private fun UsersGrid(
   userItems: ImmutableList<UserItem>,
+  submittedQuery: String?,
   modifier: Modifier = Modifier,
 ) {
   LazyVerticalGrid(
@@ -234,6 +243,20 @@ private fun UsersGrid(
     verticalArrangement = Arrangement.spacedBy(8.dp),
     horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
+    if (submittedQuery != null) {
+      item(
+        span = { GridItemSpan(maxCurrentLineSpan) },
+      ) {
+        Text(
+          modifier = Modifier.padding(vertical = 8.dp),
+          text = "Search result for '$submittedQuery'",
+          style = MaterialTheme.typography
+            .titleLarge
+            .copy(fontSize = 20.sp),
+        )
+      }
+    }
+
     items(userItems, key = { it.id }) { userItem ->
       UserItemCell(
         userItem = userItem
@@ -260,7 +283,8 @@ fun PreviewUsersGrid() {
             avatar = "avatar/$id",
           ).valueOr { throw IllegalArgumentException() }
         )
-      }.toImmutableList()
+      }.toImmutableList(),
+      submittedQuery = "hoc081098",
     )
   }
 }

@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -55,7 +56,14 @@ fun AppBarTextField(
   // Holds the latest internal TextFieldValue state. We need to keep it to have the correct value
   // of the composition.
   // Set the correct cursor position when this composable is first initialized
-  var textFieldValueState by remember { mutableStateOf(TextFieldValue(text = value)) }
+  var textFieldValueState by remember {
+    mutableStateOf(
+      TextFieldValue(
+        text = value,
+        selection = TextRange(value.length),
+      ),
+    )
+  }
 
   // Holds the latest TextFieldValue that BasicTextField was recomposed with. We couldn't simply
   // pass `TextFieldValue(text = value)` to the CoreTextField because we need to preserve the

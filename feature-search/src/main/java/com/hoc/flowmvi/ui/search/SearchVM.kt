@@ -49,7 +49,7 @@ class SearchVM @Inject constructor(
 
     viewState = intentSharedFlow
       .debugLog("ViewIntent")
-      .toPartialStateChangeFlow()
+      .toPartialStateChangeFlow(initialVS)
       .debugLog("PartialStateChange")
       .onEach { sendEvent(it.toSingleEventOrNull() ?: return@onEach) }
       .scan(initialVS) { state, change -> change.reduce(state) }
@@ -61,15 +61,17 @@ class SearchVM @Inject constructor(
     }
   }
 
-  private fun SharedFlow<ViewIntent>.toPartialStateChangeFlow(): Flow<PartialStateChange> {
+  private fun SharedFlow<ViewIntent>.toPartialStateChangeFlow(initialVS: ViewState): Flow<PartialStateChange> {
     val queryFlow = filterIsInstance<ViewIntent.Search>()
       .map { it.query }
       .shareWhileSubscribed()
 
     val searchableQueryFlow = queryFlow
       .debounce(SEARCH_DEBOUNCE_DURATION)
+      .startWith(initialVS.originalQuery)
       .filter { it.isNotBlank() }
       .distinctUntilChanged()
+      .debugLog(">>> SearchableQuery")
       .shareWhileSubscribed()
 
     return merge(
