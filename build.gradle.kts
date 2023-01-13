@@ -13,7 +13,7 @@ buildscript {
   dependencies {
     classpath("com.android.tools.build:gradle:7.4.0")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    classpath("com.diffplug.spotless:spotless-plugin-gradle:6.12.0")
+    classpath("com.diffplug.spotless:spotless-plugin-gradle:6.12.1")
     classpath("com.google.dagger:hilt-android-gradle-plugin:${deps.daggerHilt.version}")
     classpath("com.github.ben-manes:gradle-versions-plugin:0.44.0")
     classpath("org.jacoco:org.jacoco.core:0.8.8")
