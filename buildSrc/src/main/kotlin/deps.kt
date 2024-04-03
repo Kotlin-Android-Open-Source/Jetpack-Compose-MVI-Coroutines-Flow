@@ -80,7 +80,7 @@ object deps {
   }
 
   object arrow {
-    private const val version = "1.1.3"
+    private const val version = "1.2.4"
     const val core = "io.arrow-kt:arrow-core:$version"
   }
 
