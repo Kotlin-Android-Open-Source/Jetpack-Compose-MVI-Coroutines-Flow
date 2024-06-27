@@ -113,7 +113,7 @@ object deps {
 
   object test {
     const val junit = "junit:junit:4.13.2"
-    const val androidxJunit = "androidx.test.ext:junit:1.1.2"
+    const val androidxJunit = "androidx.test.ext:junit:1.2.1"
     const val androidXSspresso = "androidx.test.espresso:espresso-core:3.3.0"
 
     const val mockk = "io.mockk:mockk:1.12.5"
