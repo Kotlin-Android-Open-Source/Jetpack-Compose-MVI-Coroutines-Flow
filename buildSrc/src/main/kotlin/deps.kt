@@ -34,7 +34,7 @@ object deps {
     const val activityCompose = "androidx.activity:activity-compose:1.6.1"
 
     object navigation {
-      const val version = "2.5.2"
+      const val version = "2.8.3"
       const val compose = "androidx.navigation:navigation-compose:$version"
     }
   }
