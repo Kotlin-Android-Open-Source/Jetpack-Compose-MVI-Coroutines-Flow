@@ -106,7 +106,7 @@ object deps {
     const val compose = "io.coil-kt:coil-compose:2.2.2"
   }
 
-  const val immutableCollections = "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
+  const val immutableCollections = "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.5.2"
 
   const val flowExt = "io.github.hoc081098:FlowExt:0.5.0"
   const val timber = "com.jakewharton.timber:timber:5.0.1"
